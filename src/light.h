@@ -29,7 +29,7 @@ public:
 		return position;
 	}
 
-	GLuint get_shader() {
+	GLuint get_shader_ID() {
 		return shaderID;
 	}
 

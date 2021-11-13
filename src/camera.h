@@ -28,6 +28,19 @@ public:
 	{
 		projectionMatrix = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 	}
+
+	glm::mat4 get_projection_matrix() {
+		return projectionMatrix;
+	}
+	glm::mat4 get_view_matrix() {
+		glm::mat4 viewMatrix = glm::lookAt(
+			position,
+			position + direction,
+			glm::vec3(0, 1, 0)
+		);
+		return viewMatrix;
+	}
+
 	void set_position(const glm::vec3& _position) {
 		position = _position;
 	}

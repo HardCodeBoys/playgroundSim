@@ -16,21 +16,17 @@ private:
 	std::map<int, std::unique_ptr<Cube>> cubes;
 	std::map<int, std::unique_ptr<Light>> lights;
 
-	std::set<GLuint> shaders;
+	std::map<GLuint, Shader> shaders;
 
 	int cubeCounter;
 	int lightCounter;
 
-	GLuint colorBuffer;
 	Camera camera;
 
 public:
 	Renderer() : camera(glm::vec3(4, 0, 7)), cubeCounter(0), lightCounter(0) {}
 	void set_camera_position(const glm::vec3& _cameraPosition) {
 		camera.set_position(_cameraPosition);
-	}
-	void set_color_buffer(GLuint _colorBuffer) {
-		colorBuffer = _colorBuffer;
 	}
 	Camera& get_camera() {
 		return camera;
@@ -48,17 +44,18 @@ public:
 			cube.second->move(vec);
 		}
 	}
-	void add_shader(GLuint id) {
-		shaders.insert(id);
-	}
 
-	void create_cube(const glm::vec3& position, float size, GLuint shader) {
-		Cube cube(position, size, shader);
+	void create_cube(const glm::vec3& position, float size, const Shader& shader) {
+		Cube cube(position, size, shader.get_id());
+		if(shaders.find(shader.get_id()) == shaders.end())
+			shaders.insert(std::make_pair(shader.get_id(), Shader(shader)));
 		cubes.insert(std::make_pair(cubeCounter, std::make_unique<Cube>(cube)));
 		cubeCounter++;
 	}
-	void create_light(const glm::vec3& position, GLuint shader) {
-		Light light(position, shader);
+	void create_light(const glm::vec3& position, const Shader& shader) {
+		Light light(position, shader.get_id());
+		if (shaders.find(shader.get_id()) == shaders.end())
+			shaders.insert(std::make_pair(shader.get_id(), Shader(shader)));
 		lights.insert(std::make_pair(lightCounter, std::make_unique<Light>(light)));
 		lightCounter++;
 	}
@@ -70,19 +67,21 @@ public:
 	void draw_light(int lightID, const std::unique_ptr<Light>& light) {
 		glm::mat4 MVP = camera.calculate_mvp(light->get_position());
 
-		GLuint shader = light->get_shader();
-		glUseProgram(shader);
-		GLuint matrixID = glGetUniformLocation(shader, "MVP");
-
-		GLCall(glUniformMatrix4fv(matrixID, 1, GL_FALSE, &MVP[0][0]));
+		shaders[light->get_shader_ID()].use();
+		shaders[light->get_shader_ID()].set_mat4("MVP", MVP);
 
 		// vertex buffer
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, light->get_vertex_buffer());
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-		glDrawArrays(GL_TRIANGLES, 0, 24);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
+	}
+	void print_all_cubes_vertex_data() {
+		for (auto&& cube : cubes) {
+			cube.second->print_vertex_data();
+		}
 	}
 
 	void draw_all_cubes() {
@@ -93,24 +92,45 @@ public:
 	void draw_cube(int cubeID, const std::unique_ptr<Cube>& cube) {
 		glm::mat4 MVP = camera.calculate_mvp(cube->get_position());
 
-		GLuint shader = cube->get_shader();
-		glUseProgram(shader);
-		GLuint matrixID = glGetUniformLocation(shader, "MVP");
+		glm::mat4 projection = camera.get_projection_matrix();
+		glm::mat4 view = camera.get_view_matrix();
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), cube->get_position());	
 
-		GLCall(glUniformMatrix4fv(matrixID, 1, GL_FALSE, &MVP[0][0]));
+		shaders[cube->get_shader_ID()].use();
+		shaders[cube->get_shader_ID()].set_mat4("projection", projection);
+		shaders[cube->get_shader_ID()].set_mat4("view", view);
+		shaders[cube->get_shader_ID()].set_mat4("model", model);
+
+		shaders[cube->get_shader_ID()].set_vec3("viewPos", camera.get_position());		
 
 		// vertex buffer
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, cube->get_vertex_buffer());
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3) * 2, 0);
 
-		// color buffer
-		glEnableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		//normals buffer
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, cube->get_vertex_buffer());
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, sizeof(glm::vec3) * 2, (void*)(sizeof(glm::vec3)));
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube->get_index_buffer());
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		GLCall(glDrawElements(GL_TRIANGLES, cube->get_indices().size(), GL_UNSIGNED_INT, 0));
+
+		// draw the normals of the cube
+
+		auto vertexData = cube->get_vertex_data();
+
+		glBegin(GL_LINES);
+		{
+			for (size_t i = 0; i < vertexData.size(); i+=2)
+			{
+				const auto& v = vertexData[i];
+				const auto& d = vertexData[i + 1];
+				glVertex3f(v.x, v.y, v.z);
+				glVertex3f(v.x + d.x, v.y + d.y, v.z + d.z);
+			}
+		}
+		glEnd();
+		glUseProgram(0);
 	}
 };

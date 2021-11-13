@@ -17,11 +17,14 @@ class Shader {
 private:
     GLuint ID;
 public:
+    Shader() {}
+    Shader(const Shader& s) : ID(s.ID) { std::cout << "shader cpy ctor" << std::endl; }
+    Shader(const Shader&& s) : ID(s.get_id()) {}
     Shader(const std::string& path) : ID(0) {
         ShaderSource s = parse_shader(path);
         ID = create_shader(s.VertexSource, s.FragmentSource);
     }
-    GLuint get_id() {
+    GLuint get_id() const {
         return ID;
     }
     void use() {
@@ -31,11 +34,23 @@ public:
         glUniform3f(glGetUniformLocation(ID, name.c_str()), v.x, v.y, v.z);
     }
     void set_vec3(const std::string& name, float x, float y, float z) {
+        if (glGetUniformLocation(ID, name.c_str()) < 0)
+            std::cout << "SHADER ERROR, WRONG UNIFORM LOCATION";
+        std::cout << "id :" << glGetUniformLocation(ID, name.c_str());
         glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
     }
     void set_mat4(const std::string& name, const glm::mat4& m) {
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &m[0][0]);
     }
+    void print_vec3(const std::string& name) {
+        float data[3];
+        std::cout << "printvec3" << std::endl;
+        std::cout << glGetUniformLocation(ID, name.c_str()) << std::endl;
+        glGetUniformfv(ID, glGetUniformLocation(ID, name.c_str()), data);
+        std::cout << data[0] << std::endl;
+        std::cout << data[1] << std::endl;
+        std::cout << data[2] << std::endl;
+    }                                
 
 
 

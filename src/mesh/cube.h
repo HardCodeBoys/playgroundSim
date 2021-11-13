@@ -82,7 +82,7 @@ public:
 	}
 
 	void generate_buffers() {
-		update_vertex_data();		
+		update_vertex_data();
 
 		GLCall(glGenBuffers(1, &vertexBuffer));
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));

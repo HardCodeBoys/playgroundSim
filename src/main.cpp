@@ -95,8 +95,10 @@ int main(void)
 
     Renderer renderer;
     renderer.create_cube(glm::vec3(0, 0, 0), 1, basicShader);
-    renderer.create_cube(glm::vec3(0, 0, 1), 1, basicShader);
-    renderer.create_cube(glm::vec3(0, 0, -1), 1, basicShader);
+    renderer.create_cube(glm::vec3(0, 1, 1), 1, basicShader);
+    renderer.create_cube(glm::vec3(0, 1, -1), 1, basicShader);
+
+    renderer.create_plane(glm::vec3(0, -1, 0), 10, basicShader);
 
     basicShader.set_mat4("projection", renderer.get_camera().get_projection_matrix());
 
@@ -127,12 +129,13 @@ int main(void)
             renderer.get_camera().rotate_camera(deltaTime, xpos, ypos);
         //}
 
-
+        glClearColor(0, 0.12f, 0.6f, 1.0f);
         // Render here
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         renderer.draw_all_cubes();
         renderer.draw_all_lights();
+        renderer.draw_all_planes();
 
 
         // Swap front and back buffers 

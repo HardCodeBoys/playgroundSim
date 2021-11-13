@@ -30,7 +30,7 @@ uniform vec3 lightPos;
 
 uniform vec3 viewPos;
 
-layout(location = 0) out vec3 color;
+layout(location = 0) out vec4 color;
 
 void main()
 {
@@ -47,15 +47,15 @@ void main()
 	vec3 diffuse = diff * lightColor;
 
 	// specular lighting
-	float specularStrength = 0.5;
+	float specularStrength = 0.1;
 
 	vec3 viewDir = normalize(viewPos - fragPosition);
 	vec3 reflectDir = reflect(-lightDir, normal);
 
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 2);
 	vec3 specular = specularStrength * spec * lightColor;
 
-	color = (ambient + diffuse + specular) * vec3(1, 1, 0);
+	color = vec4((ambient + diffuse + specular) * vec3(1, 1, 0), 0);
 
 	//color = vec3(1, 1, 0);
 };

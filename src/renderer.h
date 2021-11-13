@@ -8,6 +8,7 @@
 #include "GLHelper.h"
 #include "mesh/mesh.h"
 #include "mesh/cube.h"
+#include "mesh/plane.h"
 #include "camera.h"
 #include "light.h"
 
@@ -15,16 +16,18 @@ class Renderer {
 private:
 	std::map<int, std::unique_ptr<Cube>> cubes;
 	std::map<int, std::unique_ptr<Light>> lights;
+	std::map<int, std::unique_ptr<Plane>> planes;
 
 	std::map<GLuint, Shader> shaders;
 
 	int cubeCounter;
 	int lightCounter;
+	int planeCounter;
 
 	Camera camera;
 
 public:
-	Renderer() : camera(glm::vec3(4, 0, 7)), cubeCounter(0), lightCounter(0) {}
+	Renderer() : camera(glm::vec3(4, 0, 7)), cubeCounter(0), lightCounter(0), planeCounter(0) {}
 	void set_camera_position(const glm::vec3& _cameraPosition) {
 		camera.set_position(_cameraPosition);
 	}
@@ -59,10 +62,25 @@ public:
 		lights.insert(std::make_pair(lightCounter, std::make_unique<Light>(light)));
 		lightCounter++;
 	}
+	void create_plane(const glm::vec3& position, float size, const Shader& shader) {
+		Plane plane(position, size, shader.get_id());
+		if (shaders.find(shader.get_id()) == shaders.end())
+			shaders.insert(std::make_pair(shader.get_id(), Shader(shader)));
+		planes.insert(std::make_pair(planeCounter, std::make_unique<Plane>(plane)));
+		planeCounter++;
+	}
+
+	void draw_all_planes() {
+		for (auto&& plane : planes) {
+			draw_plane(plane.first, plane.second);
+		}
+	}
+
 	void draw_all_lights() {
 		for (auto&& light : lights) {
 			draw_light(light.first, light.second);
 		}
+
 	}
 	void draw_light(int lightID, const std::unique_ptr<Light>& light) {
 		glm::mat4 MVP = camera.calculate_mvp(light->get_position());
@@ -78,6 +96,8 @@ public:
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	}
+
+
 	void print_all_cubes_vertex_data() {
 		for (auto&& cube : cubes) {
 			cube.second->print_vertex_data();
@@ -90,8 +110,6 @@ public:
 		}
 	}
 	void draw_cube(int cubeID, const std::unique_ptr<Cube>& cube) {
-		glm::mat4 MVP = camera.calculate_mvp(cube->get_position());
-
 		glm::mat4 projection = camera.get_projection_matrix();
 		glm::mat4 view = camera.get_view_matrix();
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), cube->get_position());	
@@ -133,4 +151,28 @@ public:
 		glEnd();
 		glUseProgram(0);
 	}
+
+	void draw_plane(int planeID, const std::unique_ptr<Plane>& plane) {
+
+		glm::mat4 projection = camera.get_projection_matrix();
+		glm::mat4 view = camera.get_view_matrix();
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), plane->get_position());
+
+		shaders[plane->get_shader_id()].use();
+		shaders[plane->get_shader_id()].set_mat4("projection", projection);
+		shaders[plane->get_shader_id()].set_mat4("view", view);
+		shaders[plane->get_shader_id()].set_mat4("model", model);
+
+
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, plane->get_vertex_buffer());
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3) * 2, 0);
+
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, plane->get_vertex_buffer());
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, sizeof(glm::vec3) * 2, (void*)(sizeof(glm::vec3)));
+		
+		glDrawArrays(GL_TRIANGLES, 0, 12);
+	}
+
 };

@@ -41,6 +41,12 @@
     <ClInclude Include="src\shaders\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\mesh\plane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GLHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\light_shader.shader" />

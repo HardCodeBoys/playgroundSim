@@ -159,10 +159,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera.h" />
+    <ClInclude Include="src\GLHelper.h" />
     <ClInclude Include="src\input_manager.h" />
     <ClInclude Include="src\light.h" />
     <ClInclude Include="src\mesh\cube.h" />
     <ClInclude Include="src\mesh\mesh.h" />
+    <ClInclude Include="src\mesh\plane.h" />
     <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\shaders\shader.h" />
   </ItemGroup>

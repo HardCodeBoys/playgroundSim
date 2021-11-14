@@ -38,6 +38,7 @@ public:
 		objects.insert(std::make_pair(objectCounter, std::make_unique<Plane>(position, size, shader.get_id())));
 		objectCounter++;
 	}
+
 	void move_objects(const glm::vec3& direction) {
 		for (size_t i = 0; i < objectCounter; ++i) {
 			objects[i]->move(direction);
@@ -54,9 +55,12 @@ public:
 		}
 	}
 
+	// ---------------GETTERS--------------
 	std::unique_ptr<Renderer>& get_renderer() {
 		return renderer;
 	}
+
+
 
 
 	void print_all_objects() {

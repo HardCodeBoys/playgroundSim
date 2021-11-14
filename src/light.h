@@ -4,9 +4,12 @@
 class Light {
 private:
 	std::vector<glm::vec3> vertices;
+
 	glm::vec3 position;
-	GLuint shaderID;
+
 	GLuint vertexBuffer;
+
+	GLuint shaderID;
 public:
 	Light(const glm::vec3& _position, GLuint shader) :
 		position(_position), shaderID(shader)
@@ -25,7 +28,7 @@ public:
 		return vertexBuffer;
 	}
 
-	glm::vec3& get_position() {
+	const glm::vec3& get_position() const {
 		return position;
 	}
 

@@ -15,8 +15,6 @@
 * made by HardCodeBoys
 * */
 
-
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -32,7 +30,7 @@
 
 #include "GLHelper.h"
 
-#include "shaders/shader.h"
+#include "shader.h"
 
 #include "Scene.h"
 
@@ -92,19 +90,10 @@ int main(void)
     basicShader.use();
     basicShader.set_vec3("lightColor", 1, 1, 1);
     basicShader.set_vec3("lightPos", lightPosition);
-    basicShader.print_vec3("lightColor");
 
-    /*Renderer renderer;
-    renderer.create_cube(glm::vec3(0, 0, 0), 1, basicShader);
-    renderer.create_cube(glm::vec3(0, 1, 1), 1, basicShader);
-    renderer.create_cube(glm::vec3(0, 1, -1), 1, basicShader);
-
-    renderer.create_plane(glm::vec3(0, -1, 0), 10, basicShader);
-
-    renderer.create_light(lightPosition, lightShader);*/
 
     Scene scene;
-    std::cout << "rendering scene" << std::endl;
+    std::cout << "creating scene" << std::endl;
     scene.create_cube(glm::vec3(0, 0, 0), 1, basicShader);
     //scene.create_cube(glm::vec3(0, 1, 1), 1, basicShader);
     //scene.create_cube(glm::vec3(0, 1, -1), 1, basicShader);
@@ -118,10 +107,6 @@ int main(void)
     double currentTime = glfwGetTime();
     double lastTime = 0;
 
-    float horizontalAngle = 3.14f;
-    float verticalAngle = 0.0f;
-
-
     glfwSetCursorPos(window, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
     // Loop until the user closes the window 
     while (!glfwWindowShouldClose(window))
@@ -134,7 +119,6 @@ int main(void)
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
             scene.get_renderer()->get_camera().rotate_camera(deltaTime, xpos, ypos);
-            //renderer.get_camera().rotate_camera(deltaTime, xpos, ypos);
         //}
 
         glClearColor(0, 0.12f, 0.6f, 1.0f);
@@ -144,8 +128,6 @@ int main(void)
 
         scene.render_scene();
 
-        //renderer.draw_all_cubes();
-
         // Swap front and back buffers 
         glfwSwapBuffers(window);
 
@@ -153,22 +135,18 @@ int main(void)
         glfwPollEvents();
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         {
-            //renderer.get_camera().move_forward(deltaTime);
             scene.get_renderer()->get_camera().move_forward(deltaTime);
         }
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         {
-            //renderer.get_camera().move_backwards(deltaTime);
             scene.get_renderer()->get_camera().move_backwards(deltaTime);
         }
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         {
-            //renderer.get_camera().strafe_left(deltaTime);
             scene.get_renderer()->get_camera().strafe_left(deltaTime);
         }
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         {
-            //renderer.get_camera().strafe_right(deltaTime);
             scene.get_renderer()->get_camera().strafe_right(deltaTime);
         }
 
@@ -176,22 +154,18 @@ int main(void)
 
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
         {
-            //renderer.move_cubes(glm::vec3(0, 1 * cubeSpeed, 0));
             scene.move_objects(glm::vec3(0, 1 * objectsSpeed, 0));
         }
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         {
-            //renderer.move_cubes(glm::vec3(0, -1 * cubeSpeed, 0));
             scene.move_objects(glm::vec3(0, - 1 * objectsSpeed, 0));
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
         {
-            //renderer.move_cubes(glm::vec3(0, 0, 1 * cubeSpeed));
             scene.move_objects(glm::vec3(0, 0, 1 * objectsSpeed));
         }
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         {
-            //renderer.move_cubes(glm::vec3(0, 0, -1 * cubeSpeed));
             scene.move_objects(glm::vec3(0, 0, -1 * objectsSpeed));
         }
         glfwSetKeyCallback(window, InputManager::key_callback);

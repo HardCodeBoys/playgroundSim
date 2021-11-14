@@ -29,6 +29,14 @@ public:
 		projectionMatrix = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 	}
 
+	
+	void set_position(const glm::vec3& _position) {
+		position = _position;
+	}
+	glm::vec3 get_position() const {
+		return position;
+	}
+
 	glm::mat4 get_projection_matrix() const {
 		return projectionMatrix;
 	}
@@ -41,12 +49,6 @@ public:
 		return viewMatrix;
 	}
 
-	void set_position(const glm::vec3& _position) {
-		position = _position;
-	}
-	glm::vec3 get_position() const {
-		return position;
-	}
 
 	void rotate_camera(float deltaTime, float x, float y) {
 		horizontalAngle += MOUSE_SPEED * deltaTime * float(SCREEN_WIDTH / 2 - x);

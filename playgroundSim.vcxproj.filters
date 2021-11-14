@@ -32,9 +32,6 @@
     <ClInclude Include="src\light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\shaders\shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\GLHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\cube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

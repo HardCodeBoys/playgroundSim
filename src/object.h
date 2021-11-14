@@ -17,8 +17,6 @@ protected:
 	std::vector<glm::vec3> vertexData;
 
 	GLuint shaderID;
-
-
 public:
 	void move(const glm::vec3& direction) {
 		for (size_t i = 0; i < vertices.size(); i++) {

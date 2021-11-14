@@ -14,8 +14,8 @@ private:
 	std::map<int, std::unique_ptr<Object>> objects;
 	std::map<int, std::unique_ptr<Light>> lights;
 
-	int objectCounter;
-	int lightCounter;
+	size_t objectCounter;
+	size_t lightCounter;
 public:
 	Scene() :
 		renderer(std::make_unique<Renderer>()),

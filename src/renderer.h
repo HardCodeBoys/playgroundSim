@@ -43,10 +43,12 @@ public:
 		shaders[object->get_shaderID()].set_mat4("view", view);
 		shaders[object->get_shaderID()].set_mat4("model", model);
 
+		// vertices
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, object->get_vertex_buffer());
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3) * 2, 0);
 
+		// normals
 		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, object->get_vertex_buffer());
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, sizeof(glm::vec3) * 2, (void*)(sizeof(glm::vec3)));

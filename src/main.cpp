@@ -118,7 +118,7 @@ int main(void)
         //if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
-            scene.get_renderer()->get_camera().rotate_camera(deltaTime, xpos, ypos);
+            scene.get_renderer()->get_camera().rotate_camera(deltaTime, (float)xpos, (float)ypos);
         //}
 
         glClearColor(0, 0.12f, 0.6f, 1.0f);

@@ -162,10 +162,11 @@
     <ClInclude Include="src\GLHelper.h" />
     <ClInclude Include="src\input_manager.h" />
     <ClInclude Include="src\light.h" />
-    <ClInclude Include="src\mesh\cube.h" />
-    <ClInclude Include="src\mesh\mesh.h" />
-    <ClInclude Include="src\mesh\plane.h" />
+    <ClInclude Include="src\cube.h" />
+    <ClInclude Include="src\plane.h" />
+    <ClInclude Include="src\object.h" />
     <ClInclude Include="src\renderer.h" />
+    <ClInclude Include="src\scene.h" />
     <ClInclude Include="src\shaders\shader.h" />
   </ItemGroup>
   <ItemGroup>

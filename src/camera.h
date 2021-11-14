@@ -29,10 +29,10 @@ public:
 		projectionMatrix = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 	}
 
-	glm::mat4 get_projection_matrix() {
+	glm::mat4 get_projection_matrix() const {
 		return projectionMatrix;
 	}
-	glm::mat4 get_view_matrix() {
+	glm::mat4 get_view_matrix() const {
 		glm::mat4 viewMatrix = glm::lookAt(
 			position,
 			position + direction,
@@ -44,7 +44,7 @@ public:
 	void set_position(const glm::vec3& _position) {
 		position = _position;
 	}
-	glm::vec3& get_position() {
+	glm::vec3 get_position() const {
 		return position;
 	}
 
@@ -106,4 +106,7 @@ public:
 		position += right * deltaTime * CAMERA_SPEED;
 	}
 
+	void print() {
+		std::cout << "camera at position " << glm::to_string(position) << std::endl;
+	}
 };

@@ -1,0 +1,37 @@
+#pragma once
+
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include <glm/glm.hpp>
+
+#include <vector>
+class Plane : public Object{
+private:
+public:
+	Plane(const glm::vec3& _position, float size, GLuint _shaderID) {
+		vertexBuffer = 0;
+		position = _position;
+		shaderID = _shaderID;
+		float d = size / 2;
+		vertices.push_back(glm::vec3(-d, 0, -d));
+		vertices.push_back(glm::vec3(d, 0, -d));
+		vertices.push_back(glm::vec3(d, 0, d));
+
+		vertices.push_back(glm::vec3(d, 0, d));
+		vertices.push_back(glm::vec3(-d, 0, d));
+		vertices.push_back(glm::vec3(-d, 0, -d));
+
+		update_vertex_data();
+		generate_buffers();
+	}
+	void update_vertex_data() override {
+		vertexData.clear();
+		for (size_t i = 0; i < vertices.size(); i++)
+		{
+			vertexData.push_back(vertices[i]);
+			// hardcoded normals
+			vertexData.push_back(glm::vec3(0, 1, 0));
+		}
+	}
+};

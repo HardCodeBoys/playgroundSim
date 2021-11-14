@@ -57,5 +57,5 @@ void main()
 
 	color = vec4((ambient + diffuse + specular) * vec3(1, 1, 0), 0);
 
-	//color = vec3(1, 1, 0);
+	//color = vec4(1, 1, 0, 1);
 };

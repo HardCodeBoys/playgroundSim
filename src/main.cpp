@@ -6,8 +6,7 @@
 * 
 * TODO: 
 * 
-*       the highest class will be "Scene" with the information about all of the objects
-*       1) create a shader class
+*       
 *       create a system for handling input
 *
 * 
@@ -35,8 +34,11 @@
 
 #include "shaders/shader.h"
 
+#include "Scene.h"
+
 #include "renderer.h"
-#include "mesh/cube.h"
+#include "cube.h"
+#include "input_manager.h"
 #include "meth.h"
 
 // here i could just send the pointer to the Scene, where it will handle the input
@@ -80,7 +82,6 @@ int main(void)
     Shader lightShader("res/shaders/light_shader.shader");
 
     
-
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
     // Accept fragment if it's closer to the camera than the former one
@@ -93,20 +94,26 @@ int main(void)
     basicShader.set_vec3("lightPos", lightPosition);
     basicShader.print_vec3("lightColor");
 
-    Renderer renderer;
+    /*Renderer renderer;
     renderer.create_cube(glm::vec3(0, 0, 0), 1, basicShader);
     renderer.create_cube(glm::vec3(0, 1, 1), 1, basicShader);
     renderer.create_cube(glm::vec3(0, 1, -1), 1, basicShader);
 
     renderer.create_plane(glm::vec3(0, -1, 0), 10, basicShader);
 
-    basicShader.set_mat4("projection", renderer.get_camera().get_projection_matrix());
+    renderer.create_light(lightPosition, lightShader);*/
 
+    Scene scene;
+    std::cout << "rendering scene" << std::endl;
+    scene.create_cube(glm::vec3(0, 0, 0), 1, basicShader);
+    //scene.create_cube(glm::vec3(0, 1, 1), 1, basicShader);
+    //scene.create_cube(glm::vec3(0, 1, -1), 1, basicShader);
+    scene.create_plane(glm::vec3(0, -1, 0), 10, basicShader);
 
-    renderer.create_light(lightPosition, lightShader);
+    scene.create_light(lightPosition, lightShader);
 
-    
-    
+    scene.print_all_objects();
+
     float deltaTime = 0.f;
     double currentTime = glfwGetTime();
     double lastTime = 0;
@@ -126,17 +133,18 @@ int main(void)
         //if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
-            renderer.get_camera().rotate_camera(deltaTime, xpos, ypos);
+            scene.get_renderer()->get_camera().rotate_camera(deltaTime, xpos, ypos);
+            //renderer.get_camera().rotate_camera(deltaTime, xpos, ypos);
         //}
 
         glClearColor(0, 0.12f, 0.6f, 1.0f);
         // Render here
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        renderer.draw_all_cubes();
-        renderer.draw_all_lights();
-        renderer.draw_all_planes();
 
+        scene.render_scene();
+
+        //renderer.draw_all_cubes();
 
         // Swap front and back buffers 
         glfwSwapBuffers(window);
@@ -145,40 +153,48 @@ int main(void)
         glfwPollEvents();
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         {
-            renderer.get_camera().move_forward(deltaTime);
+            //renderer.get_camera().move_forward(deltaTime);
+            scene.get_renderer()->get_camera().move_forward(deltaTime);
         }
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         {
-            renderer.get_camera().move_backwards(deltaTime);
+            //renderer.get_camera().move_backwards(deltaTime);
+            scene.get_renderer()->get_camera().move_backwards(deltaTime);
         }
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         {
-            renderer.get_camera().strafe_left(deltaTime);
+            //renderer.get_camera().strafe_left(deltaTime);
+            scene.get_renderer()->get_camera().strafe_left(deltaTime);
         }
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         {
-            renderer.get_camera().strafe_right(deltaTime);
+            //renderer.get_camera().strafe_right(deltaTime);
+            scene.get_renderer()->get_camera().strafe_right(deltaTime);
         }
 
-        float cubeSpeed = 0.01f;
+        float objectsSpeed = 0.01f;
 
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
         {
-            renderer.move_cubes(glm::vec3(0, 1 * cubeSpeed, 0));
+            //renderer.move_cubes(glm::vec3(0, 1 * cubeSpeed, 0));
+            scene.move_objects(glm::vec3(0, 1 * objectsSpeed, 0));
         }
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         {
-            renderer.move_cubes(glm::vec3(0, -1 * cubeSpeed, 0));
+            //renderer.move_cubes(glm::vec3(0, -1 * cubeSpeed, 0));
+            scene.move_objects(glm::vec3(0, - 1 * objectsSpeed, 0));
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
         {
-            renderer.move_cubes(glm::vec3(0, 0, 1 * cubeSpeed));
+            //renderer.move_cubes(glm::vec3(0, 0, 1 * cubeSpeed));
+            scene.move_objects(glm::vec3(0, 0, 1 * objectsSpeed));
         }
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         {
-            renderer.move_cubes(glm::vec3(0, 0, -1 * cubeSpeed));
+            //renderer.move_cubes(glm::vec3(0, 0, -1 * cubeSpeed));
+            scene.move_objects(glm::vec3(0, 0, -1 * objectsSpeed));
         }
-        glfwSetKeyCallback(window, key_callback);
+        glfwSetKeyCallback(window, InputManager::key_callback);
     }
     glDeleteProgram(basicShader.get_id());
     glDeleteProgram(lightShader.get_id());

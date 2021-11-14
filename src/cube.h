@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GLHelper.h"
+
 #include <iostream>
 #include <vector>
 
@@ -7,28 +9,33 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/normal.hpp>
 
-#include "mesh.h"
+#include "object.h"
 
-class Cube : public Mesh {
+class Cube : public Object {
 private:
-	glm::vec3 position;
-
-	std::vector<glm::vec3> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<glm::vec3> normals;
 
-	std::vector<glm::vec3> vertexData;
-
-	GLuint vertexBuffer;
-	GLuint normalsBuffer;
-	GLuint indexBuffer;
-
-	GLuint shaderID;
 public:
+	Cube(const Cube& c)
+		
+	{ 
+		std::cout << "cube copy ctor"; 
+		vertices = c.vertices;
+		shaderID = c.shaderID;
+		position = c.position;
+		vertexBuffer = c.vertexBuffer;
+		set_indices();
+		generate_buffers();
+	}
+	Cube(const Cube&& c) { std::cout << "cube move ctor"; }
 	// position is in the middle of the cube
-	Cube(const glm::vec3& _position, float size, GLuint shader) :
-		position(_position), vertexBuffer(0), indexBuffer(0)
+	Cube(const glm::vec3& _position, float size, GLuint _shaderID)		
 	{
+		vertexBuffer = 0;
+		position = _position;
+		shaderID = _shaderID;
+
 		float d = size / 2;
 		vertices.push_back(position + glm::vec3(-d, -d, -d));
 		vertices.push_back(position + glm::vec3(d, -d, -d));
@@ -38,15 +45,11 @@ public:
 		vertices.push_back(position + glm::vec3(-d, -d, d));
 		vertices.push_back(position + glm::vec3(d, -d, d));
 		vertices.push_back(position + glm::vec3(-d, d, d));
-		vertices.push_back(position + glm::vec3(d, d, d));
+		vertices.push_back(position + glm::vec3(d, d, d));		
 
-		shaderID = shader;
-		
 		set_indices();
+		update_vertex_data();
 		generate_buffers();
-	}
-	std::vector<glm::vec3> get_normals() {
-		return normals;
 	}
 	glm::vec3 calculate_normal(const std::vector<glm::vec3>& triangle) {
 		glm::vec3 normal;
@@ -59,7 +62,7 @@ public:
 
 		return normal;
 	}
-	void update_vertex_data() {
+	void update_vertex_data() override {
 		int indicesCounter = 0;
 		vertexData.clear();
 		for (size_t i = 0; i < 12; i++)
@@ -80,22 +83,6 @@ public:
 			}
 		}
 	}
-
-	void generate_buffers() {
-		update_vertex_data();
-
-		GLCall(glGenBuffers(1, &vertexBuffer));
-		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
-		GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertexData.size(), &vertexData[0], GL_DYNAMIC_DRAW));
-	}
-
-
-	void update_buffers() {
-		update_vertex_data();
-		GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
-		GLCall(glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * vertexData.size(), (void*) &vertexData[0]));
-	}
-
 	glm::vec3 get_position() const {
 		return position;
 	}
@@ -127,15 +114,6 @@ public:
 			7, 6, 4
 		};
 	}
-	void set_index_buffer(GLuint _indexBuffer) {
-		indexBuffer = _indexBuffer;
-	}
-	GLuint get_index_buffer() {
-		return indexBuffer;
-	}
-	GLuint get_normals_buffer() {
-		return normalsBuffer;
-	}
 	GLuint get_vertex_buffer() {
 		return vertexBuffer;
 	}
@@ -146,7 +124,7 @@ public:
 	void set_shader(GLuint _shaderID) {
 		shaderID = _shaderID;
 	}
-	GLuint get_shader_ID() {
+	GLuint get_shader_ID() const {
 		return shaderID;
 	}
 	void move(const glm::vec3& t) {

@@ -9,6 +9,7 @@
 #define SCREEN_HEIGHT 640
 #define SCREEN_WIDTH 960
 
+
 // debugging macros, stolen from Cherno
 #define ASSERT(x) if(!(x)) __debugbreak();
 #define GLCall(x) GLClearErorrs();\

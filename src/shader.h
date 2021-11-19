@@ -37,7 +37,6 @@ public:
     void set_vec3(const std::string& name, float x, float y, float z) const {
         if (glGetUniformLocation(ID, name.c_str()) < 0)
             std::cout << "SHADER ERROR, WRONG UNIFORM LOCATION";
-        std::cout << "id :" << glGetUniformLocation(ID, name.c_str());
         glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
     }
     void set_mat4(const std::string& name, const glm::mat4& m) const {

@@ -14,8 +14,8 @@ private:
 	std::map<int, std::unique_ptr<Object>> objects;
 	std::map<int, std::unique_ptr<Light>> lights;
 
-	int objectCounter;
-	int lightCounter;
+	size_t objectCounter;
+	size_t lightCounter;
 public:
 	Scene() :
 		renderer(std::make_unique<Renderer>()),
@@ -38,6 +38,7 @@ public:
 		objects.insert(std::make_pair(objectCounter, std::make_unique<Plane>(position, size, shader.get_id())));
 		objectCounter++;
 	}
+
 	void move_objects(const glm::vec3& direction) {
 		for (size_t i = 0; i < objectCounter; ++i) {
 			objects[i]->move(direction);
@@ -54,9 +55,12 @@ public:
 		}
 	}
 
+	// ---------------GETTERS--------------
 	std::unique_ptr<Renderer>& get_renderer() {
 		return renderer;
 	}
+
+
 
 
 	void print_all_objects() {

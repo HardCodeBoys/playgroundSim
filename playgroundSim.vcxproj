@@ -167,7 +167,7 @@
     <ClInclude Include="src\object.h" />
     <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\scene.h" />
-    <ClInclude Include="src\shaders\shader.h" />
+    <ClInclude Include="src\shader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\light_shader.shader" />

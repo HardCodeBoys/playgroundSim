@@ -17,8 +17,6 @@ protected:
 	std::vector<glm::vec3> vertexData;
 
 	GLuint shaderID;
-
-
 public:
 	void move(const glm::vec3& direction) {
 		for (size_t i = 0; i < vertices.size(); i++) {
@@ -27,7 +25,7 @@ public:
 		update_buffers();
 	}
 	virtual void update_vertex_data() = 0;
-	virtual void generate_buffers() {
+	void generate_buffers() {
 		glGenBuffers(1, &vertexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertexData.size(), &vertexData[0], GL_DYNAMIC_DRAW);

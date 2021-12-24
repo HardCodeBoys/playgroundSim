@@ -6,26 +6,26 @@
 #include <glm/glm.hpp>
 
 #include <vector>
-class Plane : public Object{
+class Plane : public Model {
 private:
 public:
 	Plane(const glm::vec3& _position, float size, GLuint _shaderID) {
 		vertexBuffer = 0;
 		position = _position;
 		shaderID = _shaderID;
-		float d = size / 2;
-		vertices.push_back(glm::vec3(-d, 0, -d));
-		vertices.push_back(glm::vec3(d, 0, -d));
-		vertices.push_back(glm::vec3(d, 0, d));
+		float d = size * 0.5f;
+		vertices.push_back(position + glm::vec3(-d, 0, -d));
+		vertices.push_back(position + glm::vec3(d, 0, -d));
+		vertices.push_back(position + glm::vec3(d, 0, d));
+						   
+		vertices.push_back(position + glm::vec3(d, 0, d));
+		vertices.push_back(position + glm::vec3(-d, 0, d));
+		vertices.push_back(position + glm::vec3(-d, 0, -d));
 
-		vertices.push_back(glm::vec3(d, 0, d));
-		vertices.push_back(glm::vec3(-d, 0, d));
-		vertices.push_back(glm::vec3(-d, 0, -d));
-
-		update_vertex_data();
-		generate_buffers();
+		UpdateVertexData();
+		GenerateBuffers();
 	}
-	void update_vertex_data() override {
+	void UpdateVertexData() override {
 		vertexData.clear();
 		for (size_t i = 0; i < vertices.size(); i++)
 		{

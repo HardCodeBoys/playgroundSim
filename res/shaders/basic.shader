@@ -1,5 +1,5 @@
 #shader vertex
-#version 330 core
+#version 440 core
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 vertexNormal;
@@ -14,13 +14,15 @@ uniform mat4 model;
 void main()
 {
 	gl_Position = projection * view * model * vec4(position, 1.0);
+	// translate to model normal matrix ???
 	normal = mat3(transpose(inverse(model))) * vertexNormal;
-	fragPosition = vec3(model * vec4(position, 1.0));
+	// transform frag positions to world space ??? for lighting
+ 	fragPosition = vec3(model * vec4(position, 1.0));
 };
 
 
 #shader fragment
-#version 330 core
+#version 440 core
 
 in vec3 normal;
 in vec3 fragPosition;
@@ -55,7 +57,9 @@ void main()
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), 2);
 	vec3 specular = specularStrength * spec * lightColor;
 
-	color = vec4((ambient + diffuse + specular) * vec3(1, 1, 0), 0);
+	vec3 resultingColor = vec3(1, 0.5, 1);
+
+	color = vec4((ambient + diffuse + specular) * resultingColor, 1);
 
 	//color = vec4(1, 1, 0, 1);
 };

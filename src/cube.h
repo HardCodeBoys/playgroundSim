@@ -4,16 +4,15 @@
 
 #include <iostream>
 #include <vector>
+#include "playground.h"
+#include "meth.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtx/normal.hpp>
+#include "model.h"
 
-#include "object.h"
-
-class Cube : public Object {
+class Cube : public Model {
 private:
-	std::vector<unsigned int> indices = {
+	std::vector<unsigned int> index = {
+		//front
 		0, 2, 3,
 		3, 1, 0,
 		//right
@@ -30,9 +29,8 @@ private:
 		7, 3, 2,
 		//back
 		4, 5, 7,
-		7, 6, 4
+		7, 6, 4 
 	};
-	std::vector<glm::vec3> normals;
 public:
 	Cube(const Cube& c)		
 	{ 
@@ -41,13 +39,15 @@ public:
 		shaderID = c.shaderID;
 		position = c.position;
 		vertexBuffer = c.vertexBuffer;
-		generate_buffers();
+
+		
+
+		GenerateBuffers();
 	}
-	Cube(const Cube&& c) { std::cout << "cube move ctor"; }
+	Cube(const Cube&& c) noexcept { std::cout << "cube move ctor"; }
 	// position is in the middle of the cube
 	Cube(const glm::vec3& _position, float size, GLuint _shaderID)		
 	{
-		vertexBuffer = 0;
 		position = _position;
 		shaderID = _shaderID;
 
@@ -60,13 +60,13 @@ public:
 		vertices.push_back(position + glm::vec3(-d, -d, d));
 		vertices.push_back(position + glm::vec3(d, -d, d));
 		vertices.push_back(position + glm::vec3(-d, d, d));
-		vertices.push_back(position + glm::vec3(d, d, d));		
+		vertices.push_back(position + glm::vec3(d, d, d));
 
-		update_vertex_data();
-		generate_buffers();
+		UpdateVertexData();
+		GenerateBuffers();
 	}
-	glm::vec3 calculate_normal(const std::vector<glm::vec3>& triangle) {
-		glm::vec3 normal;
+	static glm::vec3 CalculateNormal(const std::vector<glm::vec3>& triangle) {
+		glm::vec3 normal(0, 0, 0);
 		glm::vec3 u = triangle[1] - triangle[0];
 		glm::vec3 v = triangle[2] - triangle[0];
 
@@ -76,19 +76,22 @@ public:
 
 		return normal;
 	}
-	void update_vertex_data() override {
-		int indicesCounter = 0;
+	void UpdateVertexData() override {
 		vertexData.clear();
+
+		int indicesCounter = 0;
+		std::vector<glm::vec3> normals;
 		for (size_t i = 0; i < 12; i++)
 		{
 			std::vector<glm::vec3> triangle;
 			for (size_t j = 0; j < 3; j++)
 			{
-				triangle.push_back(vertices[indices[indicesCounter]]);
+				triangle.push_back(vertices[index[indicesCounter]]);
 				indicesCounter++;
 			}
-			glm::vec3 normal = calculate_normal(triangle);
+			glm::vec3 normal = CalculateNormal(triangle);
 			//glm::vec3 normal = glm::triangleNormal(triangle[0], triangle[1], triangle[2]);
+			
 			for (size_t t = 0; t < 3; t++)
 			{
 				vertexData.push_back(triangle[t]);

@@ -6,8 +6,10 @@
 
 #include <iostream>
 
-#define SCREEN_HEIGHT 640
-#define SCREEN_WIDTH 960
+#include <vector>
+
+constexpr unsigned int SCREEN_HEIGHT = 640;
+constexpr unsigned int SCREEN_WIDTH = 960;
 
 
 // debugging macros, stolen from Cherno
@@ -23,7 +25,7 @@ static void GLClearErorrs()
 
 static bool GLLogCall(const char* function, const char* file, int line)
 {
-#ifdef _DEBUG
+#if _DEBUG
     while (GLenum error = glGetError())
     {
         std::cout << "[OpenGL Error] (" << error << "): " << function << " " << file << " " << line << std::endl;

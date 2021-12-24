@@ -1,66 +1,59 @@
-/* Playground simulation made with openGl
+/* Playground simulation made with OpenGl
 * DEPENDENCIES:
-* GLFW, GLEW,
+* GLFW, 
+* GLEW,
 * GLM,
+* ImGui
 * 
 * 
 * TODO: 
+*       Entity's position is duplicated in Entity and Model and Collider and its Model ???
+*       figure out which functions should be const
+*       create a crosshair
+*       figure out the shared/unique ptr madness
+*       figure out the mersenne twister prng
 * 
+*       RENDERING
+*       ??? create a model loader/saver
+*       definitely play some more with meshes
+*       materials/light doesnt work really well
+*       the position of Light is hardcoded and currently only one working light
+*       add rotating camera like in an fps/3d game
+* 
+*       PHYSICS
+*       colliders, rigid bodies
 *       
-*       create a system for handling input
-*
+*       WORLD
+*       model the map out of triangles
 * 
-* 
+*       GUI
+*       pause menu with escape
 * 
 * made by HardCodeBoys
 * */
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtx/transform.hpp>
-
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-
 #include "GLHelper.h"
 
+
+#include "playground.h"
 #include "shader.h"
 
-#include "Scene.h"
-
+#include "scene.h"
 #include "renderer.h"
 #include "cube.h"
 #include "input_manager.h"
-#include "meth.h"
+#include "gui.h"
 
-// here i could just send the pointer to the Scene, where it will handle the input
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-    {
-        std::cout << "pressed right" << std::endl;
-        //Renderer::move_cubes(glm::vec3(1, 0, 0));
-    }
-}
-int main(void)
+int main()
 {
     GLFWwindow* window;
-
     // Initialize the library 
     if (!glfwInit())
     {
         std::cout << "Failed to initialize Glfw";
         return -1;
-
     }
-
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     // Create a windowed mode window and its OpenGL context 
     window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "PLAYGROUND", NULL, NULL);
     if (!window)
@@ -76,103 +69,107 @@ int main(void)
     if (glewInit() != GLEW_OK)
         std::cout << "error with initializing GLEW" << std::endl;
 
-    Shader basicShader("res/shaders/basic.shader");
-    Shader lightShader("res/shaders/light_shader.shader");
-
     
+
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
+    // Transparency functions
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glDisable(GL_CULL_FACE);
+    // Draw wireframe
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     // Accept fragment if it's closer to the camera than the former one
     glDepthFunc(GL_LESS);
 
+    meth::Random::Init(50);
+    LogNS::Init();
+    Log::Init();
+
+    Shader basicShader("res/shaders/basic.shader");
+    Shader lightShader("res/shaders/light_shader.shader");
+    Shader wireframeShader("res/shaders/wireframe_shader.shader");
+
     glm::vec3 lightPosition(1, 1, 0);
 
-    basicShader.use();
-    basicShader.set_vec3("lightColor", 1, 1, 1);
-    basicShader.set_vec3("lightPos", lightPosition);
+    basicShader.Use();
+    basicShader.SetVec3("lightColor", 1, 1, 1);
+    basicShader.SetVec3("lightPos", lightPosition);
 
+    std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
-    Scene scene;
+    InputManager::scene = scene;
+
     std::cout << "creating scene" << std::endl;
-    scene.create_cube(glm::vec3(0, 0, 0), 1, basicShader);
-    //scene.create_cube(glm::vec3(0, 1, 1), 1, basicShader);
-    //scene.create_cube(glm::vec3(0, 1, -1), 1, basicShader);
-    scene.create_plane(glm::vec3(0, -1, 0), 10, basicShader);
 
-    scene.create_light(lightPosition, lightShader);
+    scene->renderer->AddShader(wireframeShader);
+    scene->wireframeShader = wireframeShader.ID;
 
-    scene.print_all_objects();
+    scene->CreateCube(glm::vec3(0, 0, 0), 1, basicShader);
+    scene->CreateSphere(glm::vec3(0, 1, 1), 1, basicShader);
+    scene->CreateCube(glm::vec3(0, 1, -1), 1, basicShader);
+    //scene->CreatePlane(glm::vec3(0, -3, 0), 10, basicShader);
+    scene->CreateLight(lightPosition, lightShader);
+    scene->CreateTerrain(glm::vec3(0, -10, 0), 50, wireframeShader);
+    //scene->CreateTerrain(glm::vec3(20, -10, 0), 10, wireframeShader);
+    scene->PrintAllEntities();
+    auto lam = [&](int a, int b) {return a < b; };
 
     float deltaTime = 0.f;
     double currentTime = glfwGetTime();
     double lastTime = 0;
 
+    glfwSetMouseButtonCallback(window, InputManager::mouse_button_callback);
+    glfwSetKeyCallback(window, InputManager::key_callback);
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    int movementCounter = 0;
+    std::cout << glGetString(GL_VERSION) << std::endl;
     glfwSetCursorPos(window, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+
+    GUI::Init(window);
+
+    InputManager::IS_RUNNING = true;
+    InputManager::SHOW_GUI = false;
+
+
     // Loop until the user closes the window 
     while (!glfwWindowShouldClose(window))
     {
         currentTime = glfwGetTime();
         deltaTime = (float)(currentTime - lastTime);
-        lastTime = glfwGetTime();            
-        
-        //if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
-            double xpos, ypos;
-            glfwGetCursorPos(window, &xpos, &ypos);
-            scene.get_renderer()->get_camera().rotate_camera(deltaTime, (float)xpos, (float)ypos);
-        //}
+        lastTime = glfwGetTime();
 
         glClearColor(0, 0.12f, 0.6f, 1.0f);
         // Render here
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);        
 
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        scene->renderer->camera.RotateCamera(deltaTime, (float)xpos, (float)ypos);
 
-        scene.render_scene();
+        // vibrate the scene with time
+        // scene->MoveEntitys(glm::vec3(0, std::sin(currentTime) * deltaTime, 0));
+
+        if(InputManager::IS_RUNNING) scene->RenderScene();
+        if(InputManager::SHOW_GUI) GUI::DrawTables();
 
         // Swap front and back buffers 
         glfwSwapBuffers(window);
+        glfwPollEvents();
 
         // Poll for and process events 
-        glfwPollEvents();
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        {
-            scene.get_renderer()->get_camera().move_forward(deltaTime);
-        }
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        {
-            scene.get_renderer()->get_camera().move_backwards(deltaTime);
-        }
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        {
-            scene.get_renderer()->get_camera().strafe_left(deltaTime);
-        }
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        {
-            scene.get_renderer()->get_camera().strafe_right(deltaTime);
-        }
-
-        float objectsSpeed = 0.01f;
-
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
-        {
-            scene.move_objects(glm::vec3(0, 1 * objectsSpeed, 0));
-        }
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
-        {
-            scene.move_objects(glm::vec3(0, - 1 * objectsSpeed, 0));
-        }
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        {
-            scene.move_objects(glm::vec3(0, 0, 1 * objectsSpeed));
-        }
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        {
-            scene.move_objects(glm::vec3(0, 0, -1 * objectsSpeed));
-        }
-        glfwSetKeyCallback(window, InputManager::key_callback);
+        InputManager::ProcessKeyEvents(window, deltaTime);
+        
     }
-    glDeleteProgram(basicShader.get_id());
-    glDeleteProgram(lightShader.get_id());
+    // TODO: deleting shaders, should probably clean up more of everything
+    glDeleteProgram(basicShader.ID);
+    glDeleteProgram(lightShader.ID);
+    glDeleteProgram(wireframeShader.ID);
 
+    // Deletes all ImGUI instances
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
     return 0;

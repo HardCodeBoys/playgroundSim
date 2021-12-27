@@ -1,7 +1,13 @@
 #pragma once
 
-#include "playground.h"
-#include "mesh.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/noise.hpp>
+#include "utils/meth.h"
+#include "utils/log.h"
+
+#include "scene/model.h"
+
+
 
 class Terrain : public Model
 {
@@ -31,31 +37,20 @@ public:
 			vertexData.push_back(glm::vec3(0, 1, 0));
 		}
 	}
-	void foo(auto i) {
-
-	}
 private:
 	void GenerateTerrain() {
 		// size of the perlin grid tells how big the artifacts in the noise will be
-		int perlinSize = 1;
-		meth::Perlin2D perlin(perlinSize, perlinSize);
+		meth::Perlin2D perlin;
 
-		std::cout << "size = " << size << "perlinSize = " << perlinSize << std::endl;
-		LogNS::Init();
-		foo(perlinSize);
 		for (size_t y = 0; y < size; y++)
 		{
 			for (size_t x = 0; x < size; x++)
 			{
-				float px = meth::MapRange(0, size, 0.00001f, 1.99f, x);
-				float py = meth::MapRange(0, size, 0.00001f, 1.99f, y);
+				float px = meth::MapRange(0, size, 0.00001f, 64 - std::numeric_limits<float>::epsilon(), x);
+				float py = meth::MapRange(0, size, 0.00001f, 64 - std::numeric_limits<float>::epsilon(), y);
 				//float height = perlin.OctavePerlin(px, py, 4);
-				//Log::err("lelel", 5, 'a');
 				float height = perlin.GetNoise(px, py);
-				if (px == (int)px) {
-					std::cout << px << " = "; Log::Err("integer");
-				}
-				//std::cout << "x, y = " << x << ", " << y << "px, py = " << px << ", " << py << std::endl;
+				//float height = glm::perlin(glm::vec2(px, py));
 				vertices.push_back(glm::vec3(position.x + x, position.y + height, position.z + y));
 			}
 		}

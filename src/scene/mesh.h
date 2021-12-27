@@ -1,7 +1,7 @@
 #pragma once
 
-#include "playground.h"
-#include "model.h"
+#include <iostream>
+#include "scene/model.h"
 
 class Mesh : public Model
 {

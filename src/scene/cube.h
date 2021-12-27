@@ -1,13 +1,8 @@
 #pragma once
 
-#include "GLHelper.h"
-
-#include <iostream>
 #include <vector>
-#include "playground.h"
-#include "meth.h"
-
-#include "model.h"
+#include <iostream>
+#include <scene/model.h>
 
 class Cube : public Model {
 private:

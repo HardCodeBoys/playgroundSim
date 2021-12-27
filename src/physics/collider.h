@@ -1,7 +1,8 @@
 #pragma once
 
-#include "GLHelper.h"
-#include "model.h"
+#include <glm/glm.hpp>
+#include <memory>
+#include "../scene/model.h"
 
 struct Ray
 {

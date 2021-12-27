@@ -1,28 +1,16 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 #include <time.h>
-#include <windows.h> 
+#include <windows.h>
 #include <algorithm>
 
 #define LOG_ASSERT(x) if(!(x)) __debugbreak()
 
-namespace LogNS {
-	static HANDLE console;
-
-	static void Init() {
-		console = GetStdHandle(STD_OUTPUT_HANDLE);
-	}
-
-	static void PrintFile(const char* file) {
-		SetConsoleTextAttribute(console, 2);
-		std::cout << file << std::endl;
-		SetConsoleTextAttribute(console, 7);
-	}
-}
-
 class Log;
-#define INFO(x) Log::SimpleInfo(x, __FILE__, __LINE__)
+#define PL_INFO(x) Log::SimpleInfo(x, __FILE__, __LINE__)
+#define PL_ERROR(x) Log::SimpleErr(x, __FILE__, __LINE__)
 
 class Log
 {
@@ -34,11 +22,10 @@ public:
 		std::cout << file << " at line " << line << std::endl;
 		SetConsoleTextAttribute(console, 7);
 	}
-
-
 	static void Init() {
 		console = GetStdHandle(STD_OUTPUT_HANDLE);
 	}
+	// INFO
 	template <typename... Args>
 	static void Info(const std::string& message, Args&& ...args) {
 		SetConsoleTextAttribute(console, 2);
@@ -55,7 +42,8 @@ public:
 		std::cout << message << " in file " << file << " at line " << line << std::endl;
 		SetConsoleTextAttribute(console, 7);
 	}
-	
+
+	// WARNINGS
 	template <typename... Args>
 	static void Warn(const std::string& message, Args&& ...args) {
 		SetConsoleTextAttribute(console, 6);
@@ -67,6 +55,8 @@ public:
 		std::cout << message << std::endl;
 		SetConsoleTextAttribute(console, 7);
 	}
+
+	// ERRORS
 	template <typename... Args>
 	static void Err(const std::string& message, Args&& ...args) {
 		SetConsoleTextAttribute(console, 4);
@@ -78,6 +68,11 @@ public:
 		std::cout << message << std::endl;
 		SetConsoleTextAttribute(console, 7);
 	}
+	static void SimpleErr(const std::string& message, const char* file, int line) {
+		SetConsoleTextAttribute(console, 4);
+		std::cout << message << " in file " << file << " at line " << line << std::endl;
+		SetConsoleTextAttribute(console, 7);
+	}
 private:
 	template <typename... Args>
 	static void Print(const std::string& message, Args&& ...args) {
@@ -85,17 +80,19 @@ private:
 		size_t n = std::count(message.begin(), message.end(), '\\');
 		LOG_ASSERT(n == sizeof...(args));
 		std::string temp = message;
+		std::string msg = "";
+
 		auto f = [&](const auto& value) {
-			auto s = temp.substr(0, temp.find('\\'));
+			//std::cout << "temp = " << temp << std::endl;
+			delimPosition = temp.find('\\');
+			//std::cout << "delimpos = " << delimPosition << std::endl;
+			auto s = temp.substr(0, delimPosition);
 			s += std::to_string(value);
-			std::cout << s;
-			delimPosition += s.size();
-			temp = message.substr(delimPosition, std::string::npos);
+			//std::cout << s << std::endl;
+			msg += s;
+			temp = temp.substr(delimPosition + 1);
 		};
 		((f(std::forward<Args>(args))), ...);
-		// when \\ is last character, TODO
-		if(message.back() != '\\')
-			std::cout << message.back();
-		std::cout << std::endl;
+		std::cout << msg << std::endl;
 	}
 };

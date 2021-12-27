@@ -1,6 +1,7 @@
 #pragma once
 
-#include "GLHelper.h"
+#include <glm/glm.hpp>
+#include "../utils/meth.h"
 #include "collider.h"
 
 class SphereCollider : public Collider

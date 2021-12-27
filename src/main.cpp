@@ -32,17 +32,17 @@
 * made by HardCodeBoys
 * */
 
-#include "GLHelper.h"
+#include "playgroundpch.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
+#include "core/base.h"
 
-#include "playground.h"
-#include "shader.h"
+#include "utils/log.h"
+#include "utils/meth.h"
 
-#include "scene.h"
-#include "renderer.h"
-#include "cube.h"
 #include "input_manager.h"
-#include "gui.h"
+#include "scene/scene.h"
 
 int main()
 {
@@ -83,7 +83,6 @@ int main()
     glDepthFunc(GL_LESS);
 
     meth::Random::Init(50);
-    LogNS::Init();
     Log::Init();
 
     Shader basicShader("res/shaders/basic.shader");
@@ -105,19 +104,14 @@ int main()
     scene->renderer->AddShader(wireframeShader);
     scene->wireframeShader = wireframeShader.ID;
 
-    scene->CreateCube(glm::vec3(0, 0, 0), 1, basicShader);
+    //scene->CreateCube(glm::vec3(0, 0, 0), 1, basicShader);
     scene->CreateSphere(glm::vec3(0, 1, 1), 1, basicShader);
-    scene->CreateCube(glm::vec3(0, 1, -1), 1, basicShader);
-    //scene->CreatePlane(glm::vec3(0, -3, 0), 10, basicShader);
+    //scene->CreateCube(glm::vec3(0, 1, -1), 1, basicShader);
     scene->CreateLight(lightPosition, lightShader);
     scene->CreateTerrain(glm::vec3(0, -10, 0), 50, wireframeShader);
-    //scene->CreateTerrain(glm::vec3(20, -10, 0), 10, wireframeShader);
-    scene->PrintAllEntities();
-    auto lam = [&](int a, int b) {return a < b; };
+    //scene->PrintAllEntities();
 
-    float deltaTime = 0.f;
-    double currentTime = glfwGetTime();
-    double lastTime = 0;
+    
 
     glfwSetMouseButtonCallback(window, InputManager::mouse_button_callback);
     glfwSetKeyCallback(window, InputManager::key_callback);
@@ -131,6 +125,9 @@ int main()
     InputManager::IS_RUNNING = true;
     InputManager::SHOW_GUI = false;
 
+    float deltaTime = 0.f;
+    double currentTime = glfwGetTime();
+    double lastTime = 0;
 
     // Loop until the user closes the window 
     while (!glfwWindowShouldClose(window))

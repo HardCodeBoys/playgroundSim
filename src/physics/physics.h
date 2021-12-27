@@ -1,8 +1,7 @@
 #pragma once
 
-#include <algorithm>
+#include <glm/glm.hpp>
 
-#include "GLHelper.h"
 #include "cube_collider.h"
 #include "sphere_collider.h"
 

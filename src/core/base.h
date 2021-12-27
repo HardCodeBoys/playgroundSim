@@ -1,19 +1,14 @@
 #pragma once
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
+#include <gl/glew.h>
+#include "GLFW/glfw3.h"
 
 #include <iostream>
-
-#include <vector>
 
 constexpr unsigned int SCREEN_HEIGHT = 640;
 constexpr unsigned int SCREEN_WIDTH = 960;
 
-
 // debugging macros, stolen from Cherno
-#define ASSERT(x) if(!(x)) __debugbreak();
+#define ASSERT(x) if(!(x)) __debugbreak()
 #define GLCall(x) GLClearErorrs();\
     x;\
     ASSERT(GLLogCall(#x, __FILE__, __LINE__))\

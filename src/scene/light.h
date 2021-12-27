@@ -1,6 +1,10 @@
 #pragma once
-#include "GLHelper.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+
+#include <vector>
 class Light {
 public:
 	glm::vec3 position;

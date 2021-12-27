@@ -3,9 +3,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <glm/glm.hpp>
+#include "scene/model.h"
 
-#include <vector>
 class Plane : public Model {
 private:
 public:

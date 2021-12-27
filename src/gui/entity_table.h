@@ -1,7 +1,10 @@
 #pragma once
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 
 #include "table.h"
-#include "entity.h"
+#include "scene/entity.h"
 
 class EntityTable : public Table
 {

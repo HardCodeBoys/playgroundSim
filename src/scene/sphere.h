@@ -1,7 +1,10 @@
 #pragma once
 
-#include "GLHelper.h"
-#include "model.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
+#include "scene/model.h"
+#include <vector>
 
 class Sphere : public Model {
 private:

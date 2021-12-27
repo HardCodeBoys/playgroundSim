@@ -1,11 +1,13 @@
 #pragma once
 
-#include <typeinfo>
-#include "GLHelper.h"
 
-#include "camera.h"
-#include "model.h"
-#include "collider.h"
+#include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
+
+#include <memory>
+
+#include "scene/model.h"
+#include "physics/collider.h"
 
 /// <summary>
 /// Base class for every entity in the scene, containing information for Rendering, Physics and (AI)
@@ -42,27 +44,7 @@ public:
 		model = _model;
 		collider = _collider;
 	}
-	void Move(const glm::vec3& direction) {
-		position += direction;
-		for (size_t i = 0; i < model->vertices.size(); i++) {
-			model->vertices[i] += direction;
-		}
-		model->position += direction;
-
-		if (collider != nullptr) { 
-			if (collider->model != nullptr)
-			{
-				for (size_t i = 0; i < collider->model->vertices.size(); i++)
-				{
-					collider->model->vertices[i] += direction;
-				}
-				collider->position += direction;
-				collider->model->position += direction;
-				collider->model->UpdateBuffers();
-			}			
-		}
-		model->UpdateBuffers();
-	}
+	void Move(const glm::vec3& direction);
 
 	// -------------------OPERATORS-----------------------
 	friend std::ostream& operator<<(std::ostream& os, const Entity& o)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <memory>
 #include "collider.h"
 
 class CubeCollider : public Collider

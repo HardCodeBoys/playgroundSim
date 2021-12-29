@@ -65,8 +65,7 @@ void Renderer::DrawModel(const std::shared_ptr<Model>& model, bool withNormals) 
 	}
 
 	if (withNormals) {
-		// draw the normals of the entities
-
+		// draw the normals of the models
 		auto& vertexData = model->vertexData;
 
 		glBegin(GL_LINES);
@@ -84,20 +83,17 @@ void Renderer::DrawModel(const std::shared_ptr<Model>& model, bool withNormals) 
 	glUseProgram(0);
 }
 
-void Renderer::DrawLine(const glm::vec3& a, const glm::vec3& b) {
+void Renderer::DrawLine(const glm::vec3& a, const glm::vec3& b, GLuint shaderID) {
 	glm::mat4 projection = camera.GetProjectionMatrix();
 	glm::mat4 view = camera.GetViewMatrix();
 	glm::mat4 modelMat = glm::mat4(1.0f);
-
-	GLuint shaderID = shaders.begin()->first;
-
-	shaders[shaderID].SetVec3("viewPos", camera.position);
 
 	shaders[shaderID].Use();
 	shaders[shaderID].SetMat4("projection", projection);
 	shaders[shaderID].SetMat4("view", view);
 	shaders[shaderID].SetMat4("model", modelMat);
 
+	shaders[shaderID].SetVec3("viewPos", camera.position);
 
 	glBegin(GL_LINES);
 	{
@@ -107,12 +103,13 @@ void Renderer::DrawLine(const glm::vec3& a, const glm::vec3& b) {
 	glEnd();
 
 }
-// should not get a light, just its model
+// TODO: should not get a light, just its model
 void Renderer::DrawLight(const std::unique_ptr<Light>& light) {
 	glm::mat4 MVP = camera.CalculateMVP(light->position);
 	GLuint shaderID = light->shaderID;
 
 	shaders[shaderID].Use();
+
 	shaders[shaderID].SetMat4("MVP", MVP);
 
 	// vertex buffer

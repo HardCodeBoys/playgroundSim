@@ -52,10 +52,10 @@ uniform vec3 viewPos;
 
 void main() 
 {
+	// using viewPos to disable the error message in shader.h at line 40
+	vec3 nothing = viewPos;
 	color = vec4(1, 1, 0, 1);
 		
-
-
 	/*if (fragPosition.y == normal.y)
 		color = vec4(1, 0, 0, 1);
 	if (fragPosition.y > 1 && fragPosition.x > 1)

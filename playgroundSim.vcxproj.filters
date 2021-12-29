@@ -63,6 +63,9 @@
     <ClCompile Include="src\playgroundpch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\scene\component.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\renderer\renderer.h">
@@ -101,7 +104,7 @@
     <ClInclude Include="src\physics\collider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\physics\cube_collider.h">
+    <ClInclude Include="src\physics\box_collider.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\physics\sphere_collider.h">
@@ -162,6 +165,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physics\rigid_body.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\component.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\debug_table.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

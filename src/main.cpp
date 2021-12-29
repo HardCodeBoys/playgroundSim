@@ -24,7 +24,6 @@
 *       colliders, rigid bodies
 *       
 *       WORLD
-*       model the map out of triangles
 * 
 *       GUI
 *       pause menu with escape
@@ -43,6 +42,7 @@
 
 #include "input_manager.h"
 #include "scene/scene.h"
+#include "gui/debug_table.h"
 
 int main()
 {
@@ -84,10 +84,10 @@ int main()
 
     meth::Random::Init(50);
     Log::Init();
+    Shader wireframeShader("res/shaders/wireframe_shader.shader");
 
     Shader basicShader("res/shaders/basic.shader");
     Shader lightShader("res/shaders/light_shader.shader");
-    Shader wireframeShader("res/shaders/wireframe_shader.shader");
 
     glm::vec3 lightPosition(1, 1, 0);
 
@@ -102,16 +102,19 @@ int main()
     std::cout << "creating scene" << std::endl;
 
     scene->renderer->AddShader(wireframeShader);
-    scene->wireframeShader = wireframeShader.ID;
 
-    //scene->CreateCube(glm::vec3(0, 0, 0), 1, basicShader);
+    scene->WIREFRAME_SHADER = wireframeShader.ID;
+    scene->BASIC_SHADER = basicShader.ID;
+
+    std::cout << "wireframeShader = " << scene->WIREFRAME_SHADER << ", basic = " << scene->BASIC_SHADER << std::endl;
+
+    scene->CreateCube(glm::vec3(0, 8, 1), 1, basicShader);
     scene->CreateSphere(glm::vec3(0, 1, 1), 1, basicShader);
     //scene->CreateCube(glm::vec3(0, 1, -1), 1, basicShader);
     scene->CreateLight(lightPosition, lightShader);
     scene->CreateTerrain(glm::vec3(0, -10, 0), 50, wireframeShader);
     //scene->PrintAllEntities();
 
-    
 
     glfwSetMouseButtonCallback(window, InputManager::mouse_button_callback);
     glfwSetKeyCallback(window, InputManager::key_callback);
@@ -123,12 +126,15 @@ int main()
     GUI::Init(window);
 
     InputManager::IS_RUNNING = true;
-    InputManager::SHOW_GUI = false;
+    InputManager::SHOW_GUI = true;
+    InputManager::DRAW_GIZMOS = false;
+
+    GUI::AddTable(std::make_shared<DebugTable>());
 
     float deltaTime = 0.f;
     double currentTime = glfwGetTime();
     double lastTime = 0;
-
+    
     // Loop until the user closes the window 
     while (!glfwWindowShouldClose(window))
     {
@@ -143,10 +149,10 @@ int main()
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
         scene->renderer->camera.RotateCamera(deltaTime, (float)xpos, (float)ypos);
+        scene->UpdateScene(deltaTime);
 
-        // vibrate the scene with time
-        // scene->MoveEntitys(glm::vec3(0, std::sin(currentTime) * deltaTime, 0));
 
+        if(InputManager::DRAW_GIZMOS) scene->DrawGizmos();
         if(InputManager::IS_RUNNING) scene->RenderScene();
         if(InputManager::SHOW_GUI) GUI::DrawTables();
 

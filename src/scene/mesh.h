@@ -3,6 +3,9 @@
 #include <iostream>
 #include "scene/model.h"
 
+
+#include "utils/log.h"
+
 class Mesh : public Model
 {
 private:
@@ -10,8 +13,8 @@ private:
 public:
 	// create a (random) vector of vertices for the mesh
 	Mesh() {}
-	virtual void UpdateVertexData() override {
-		std::cout << "calling unimplemented vertexdata on Mesh" << std::endl;
+	virtual void CreateVertexData() override {
+		PL_NOT_IMPLEMENTED();
 	}
 
 };

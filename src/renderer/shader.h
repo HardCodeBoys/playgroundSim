@@ -2,7 +2,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-//#include "utils/log.h"
+#include "utils/log.h"
 
 #include <iostream>
 #include <fstream>
@@ -37,21 +37,21 @@ public:
     }
     void SetVec3(const std::string& name, const glm::vec3& v) const {
         if (glGetUniformLocation(ID, name.c_str()) < 0) {
-            //ERROR("SHADER ERROR, WRONG UNIFORM LOCATION FOR " + name);
+            PL_ERROR(("SHADER ERROR, WRONG UNIFORM LOCATION"));
             return;
         }
         glUniform3f(glGetUniformLocation(ID, name.c_str()), v.x, v.y, v.z);
     }
     void SetVec3(const std::string& name, float x, float y, float z) const {
         if (glGetUniformLocation(ID, name.c_str()) < 0) {
-            //std::cout << "SHADER ERROR, WRONG UNIFORM LOCATION FOR " << name << std::endl;
+            PL_ERROR("SHADER ERROR, WRONG UNIFORM LOCATION");
             return;
         }
         glUniform3f(glGetUniformLocation(ID, name.c_str()), x, y, z);
     }
     void SetMat4(const std::string& name, const glm::mat4& m) const {
         if (glGetUniformLocation(ID, name.c_str()) < 0) {
-            //std::cout << "SHADER ERROR, WRONG UNIFORM LOCATION FOR " << name << std::endl;
+            PL_ERROR("SHADER ERROR, WRONG UNIFORM LOCATION");
             return;
         }
         glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &m[0][0]);

@@ -2,7 +2,10 @@
 
 #include <vector>
 #include <iostream>
-#include <scene/model.h>
+#include "utils/meth.h"
+#include "scene/model.h"
+
+#include "utils/log.h"
 
 class Cube : public Model {
 private:
@@ -27,22 +30,50 @@ private:
 		7, 6, 4 
 	};
 public:
-	Cube(const Cube& c)		
+	Cube(const Cube& other)		
 	{ 
 		std::cout << "cube copy ctor"; 
-		vertices = c.vertices;
-		shaderID = c.shaderID;
-		position = c.position;
-		vertexBuffer = c.vertexBuffer;
+		position = other.position;
 
-		
+		vertexBuffer = other.vertexBuffer;
+		indexBuffer = other.indexBuffer;
 
+		vertices = other.vertices;
+		vertexData = other.vertexData;
+
+		shaderID = other.shaderID;
+
+		CreateVertexData();
 		GenerateBuffers();
 	}
-	Cube(const Cube&& c) noexcept { std::cout << "cube move ctor"; }
+	Cube(Cube&& other) noexcept 
+		: Model(other.position, other.shaderID)
+	{ 
+		Log::Info("cube move ctor");
+		position = other.position;
+
+		vertexBuffer = other.vertexBuffer;
+		indexBuffer = other.indexBuffer;
+
+		vertices = other.vertices;
+		vertexData = other.vertexData;
+
+		indices = other.indices;
+
+		shaderID = other.shaderID;
+
+		other.Destroy();
+
+		CreateVertexData();
+		GenerateBuffers();
+
+	}
+
+
 	// position is in the middle of the cube
-	Cube(const glm::vec3& _position, float size, GLuint _shaderID)		
+	Cube(const glm::vec3& _position, float size, GLuint _shaderID)
 	{
+		std::cout << "cube ctor" << std::endl;
 		position = _position;
 		shaderID = _shaderID;
 
@@ -57,21 +88,12 @@ public:
 		vertices.push_back(position + glm::vec3(-d, d, d));
 		vertices.push_back(position + glm::vec3(d, d, d));
 
-		UpdateVertexData();
+		CreateVertexData();
 		GenerateBuffers();
 	}
-	static glm::vec3 CalculateNormal(const std::vector<glm::vec3>& triangle) {
-		glm::vec3 normal(0, 0, 0);
-		glm::vec3 u = triangle[1] - triangle[0];
-		glm::vec3 v = triangle[2] - triangle[0];
-
-		normal.x = u.y * v.z - u.z * v.y;
-		normal.y = u.z * v.x - u.x * v.z;
-		normal.z = u.x * v.y - u.y * v.x;
-
-		return normal;
-	}
-	void UpdateVertexData() override {
+	~Cube() {}
+	
+	void CreateVertexData() override {
 		vertexData.clear();
 
 		int indicesCounter = 0;
@@ -84,7 +106,7 @@ public:
 				triangle.push_back(vertices[index[indicesCounter]]);
 				indicesCounter++;
 			}
-			glm::vec3 normal = CalculateNormal(triangle);
+			glm::vec3 normal = meth::CalculateNormal(triangle);
 			//glm::vec3 normal = glm::triangleNormal(triangle[0], triangle[1], triangle[2]);
 			
 			for (size_t t = 0; t < 3; t++)

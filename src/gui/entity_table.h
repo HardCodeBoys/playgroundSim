@@ -18,12 +18,12 @@ public:
 		ImGui::Begin(typeid(entity).name());
 		std::string position = "entity pos: " + glm::to_string(entity->position);
 		ImGui::Text(position.c_str());
-		position = "model pos: " + glm::to_string(entity->model->position);
+		position = "model pos: " + glm::to_string(entity->GetComponent<Model>()->position);
 		ImGui::Text(position.c_str());
-		position = "collider pos: " + glm::to_string(entity->collider->position);
+		/*position = "collider pos: " + glm::to_string(entity->collider->position);
 		ImGui::Text(position.c_str());
 		position = "collider model pos: " + glm::to_string(entity->collider->model->position);
-		ImGui::Text(position.c_str());
+		ImGui::Text(position.c_str());*/
 		ImGui::End();
 	}
 };

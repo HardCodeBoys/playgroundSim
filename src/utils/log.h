@@ -5,12 +5,16 @@
 #include <time.h>
 #include <windows.h>
 #include <algorithm>
+#include <typeinfo>
 
 #define LOG_ASSERT(x) if(!(x)) __debugbreak()
 
 class Log;
-#define PL_INFO(x) Log::SimpleInfo(x, __FILE__, __LINE__)
-#define PL_ERROR(x) Log::SimpleErr(x, __FILE__, __LINE__)
+#define PL_INFO(message) Log::SimpleInfo(message, __FILE__, __LINE__)
+#define PL_ERROR(message) Log::SimpleErr(message, __FILE__, __LINE__)
+
+#define PL_NOT_IMPLEMENTED() Log::SimpleErr(__FUNCTION__, __FILE__, __LINE__)
+
 
 class Log
 {
@@ -32,9 +36,9 @@ public:
 		Print(message, args...);
 		SetConsoleTextAttribute(console, 7);
 	}
-	static void Info(const std::string& message, const char* file, const char* line) {
+	static void Info(const std::string& message = "info") {
 		SetConsoleTextAttribute(console, 2);
-		std::cout << message << "in file " << file << " at line " << line << std::endl;
+		std::cout << message << std::endl;
 		SetConsoleTextAttribute(console, 7);
 	}
 	static void SimpleInfo(const char* message, const char* file, int line) {
@@ -68,15 +72,17 @@ public:
 		std::cout << message << std::endl;
 		SetConsoleTextAttribute(console, 7);
 	}
-	static void SimpleErr(const std::string& message, const char* file, int line) {
+	static void SimpleErr(const char* message, const char* file, int line) {
 		SetConsoleTextAttribute(console, 4);
 		std::cout << message << " in file " << file << " at line " << line << std::endl;
 		SetConsoleTextAttribute(console, 7);
 	}
 private:
+
+
 	template <typename... Args>
 	static void Print(const std::string& message, Args&& ...args) {
-		uint16_t delimPosition = 0;
+		size_t delimPosition = 0;
 		size_t n = std::count(message.begin(), message.end(), '\\');
 		LOG_ASSERT(n == sizeof...(args));
 		std::string temp = message;
@@ -93,6 +99,7 @@ private:
 			temp = temp.substr(delimPosition + 1);
 		};
 		((f(std::forward<Args>(args))), ...);
+		msg += temp;
 		std::cout << msg << std::endl;
 	}
 };

@@ -42,10 +42,12 @@ void Scene::SelectEntity(double xPos, double yPos) {
 	int hEntityID = -1;
 	bool hit = false;
 	for (auto&& entity : entities) {
-		if (entity.second->collider != nullptr) {
-			hit = entity.second->collider->Raycast(ray);
+		auto collider = entity.second->GetComponent<Collider>();
+		if (collider != nullptr) {
+			hit = collider->Raycast(ray);
 			if (hit)
 			{
+				Log::Warn("hit");
 				if (ray.distance < minDistance) {
 					minDistance = ray.distance;
 					hEntityID = entity.first;
@@ -62,38 +64,51 @@ void Scene::CreateDebugLine(const glm::vec3& a, const glm::vec3& b) {
 	debugLines.push_back(b);
 }
 void Scene::CreateTerrain(const glm::vec3& position, int size, const Shader& shader) {
-	auto ptr = std::make_shared<Entity>(
-		std::make_shared<Terrain>(position, size, shader.ID));
-	entities.insert(std::make_pair(entityCounter, ptr));
+	renderer->AddShader(shader);
+
+	auto temp = std::make_shared<Entity>(position);
+	temp->AddComponent<Terrain>(Terrain(position, size, shader.ID));
+	temp->AddComponent<RigidBody>(RigidBody(position, true));
+
+	entities.insert(std::make_pair(entityCounter, temp));
 	entityCounter++;
 }
 
 void Scene::CreateCube(const glm::vec3& position, float size, const Shader& shader) {
 	renderer->AddShader(shader);
-	auto ptr = std::make_shared<Entity>(
-		std::make_shared<Cube>(position, size, shader.ID),
-		std::make_shared<CubeCollider>(position, size,
-			std::make_shared<Cube>(position, size * 1.2f, wireframeShader)));
-	entities.insert(std::make_pair(entityCounter, ptr));
-	GUI::AddTable(std::make_shared<EntityTable>(ptr));
+
+	auto temp = std::make_shared<Entity>(position);
+	temp->AddComponent<Cube>(Cube(position, size, shader.ID));
+	temp->AddComponent<BoxCollider>(BoxCollider(position, size, WIREFRAME_SHADER));
+	temp->AddComponent<RigidBody>(RigidBody(position, false));
+
+	entities.insert(std::make_pair(entityCounter, temp));
 	entityCounter++;
 }
 void Scene::CreateSphere(const glm::vec3& position, float size, const Shader& shader) {
 	renderer->AddShader(shader);
-	auto ptr = std::make_shared<Entity>(
-		std::make_shared<Sphere>(position, size, shader.ID),
-		std::make_shared<SphereCollider>(position, size * 2,
-			std::make_shared<Cube>(position, size, wireframeShader)));
-	entities.insert(std::make_pair(entityCounter, ptr));
-	GUI::AddTable(std::make_shared<EntityTable>(ptr));
+
+	auto temp = std::make_shared<Entity>(position);
+	temp->AddComponent<Sphere>(Sphere(position, size, shader.ID));
+	temp->AddComponent<SphereCollider>(SphereCollider(position, size, WIREFRAME_SHADER));
+	temp->AddComponent<RigidBody>(RigidBody(position, false));
+	temp->GetComponent<RigidBody>()->SetVelocity({ 0, 2, 0 });
+	auto s = temp->GetComponent<RigidBody>();
+	if (s != nullptr) {
+		Log::Warn("got a pointer");
+	}
+	else
+		Log::Warn("no pointer \\, sa \\");
+
+	entities.insert(std::make_pair(entityCounter, temp));
 	entityCounter++;
 }
 void Scene::CreatePlane(const glm::vec3& position, float size, const Shader& shader) {
-	renderer->AddShader(shader);
+	/*renderer->AddShader(shader);
 	entities.insert(std::make_pair(entityCounter,
 		std::make_shared<Entity>(
 			std::make_shared<Plane>(position, size, shader.ID))));
-	entityCounter++;
+	entityCounter++;*/
 }
 void Scene::CreateLight(const glm::vec3& position, const Shader& shader) {
 	renderer->AddShader(shader);
@@ -104,7 +119,7 @@ void Scene::CreateLight(const glm::vec3& position, const Shader& shader) {
 void Scene::DeleteEntity(const glm::vec3& position) {
 	std::map<int, std::shared_ptr<Entity>>::iterator deletedEntityIt = entities.end();
 	for (auto it = entities.begin(); it != entities.end(); ++it) {
-		if (it->second->model->position == position)
+		if (it->second->GetComponent<Model>()->position == position)
 		{
 			deletedEntityIt = it;
 		}
@@ -121,31 +136,73 @@ void Scene::MoveEntities(const glm::vec3& direction) {
 		it->second->Move(direction);
 	}
 }
+// Run physics, probably should be done in Physics class
+void Scene::UpdateScene(float deltaTime) {
+	for (auto&& entity : entities) {
+		auto rigidBody = entity.second->GetComponent<RigidBody>();
+		if (rigidBody != nullptr)
+		{
+			if(!rigidBody->IsStatic())
+				entity.second->PhysicsUpdate(deltaTime);
+		}
+	}
+	for (size_t i = 0; i < entities.size(); i++)
+	{
+		for (size_t j = i + 1; j < entities.size(); j++)
+		{
+			auto c1 = entities[i]->GetComponent<Collider>();
+			auto c2 = entities[j]->GetComponent<Collider>();
+			bool b = false;
+			if (c1 != nullptr && c2 != nullptr) {
+				b = Physics::Intersect(c1, c2);
+			}
+			if (b)
+			{
+				Log::Info("collided");
+				auto v1 = entities[i]->GetComponent<RigidBody>()->GetVelocity();
+				entities[i]->GetComponent<RigidBody>()->SetVelocity(v1 * -1.0f);
+				auto v2 = entities[j]->GetComponent<RigidBody>()->GetVelocity();
+				entities[j]->GetComponent<RigidBody>()->SetVelocity(v2 * -1.0f);
+			}
+		}
+	}
+}
+
 
 void Scene::RenderScene() {
 	for (std::map<int, std::shared_ptr<Entity>>::iterator it = entities.begin();
 		it != entities.end(); ++it)
 	{
-		renderer->DrawModel(it->second->model, true);
-		if (it->second->collider != nullptr)
-			if (it->second->collider->model != nullptr)
-				renderer->DrawModel(it->second->collider->model);
+		auto model = it->second->GetComponent<Model>();
+		if (model != nullptr) {
+			renderer->DrawModel(model, true);
+		}		
 	}
 	for (std::map<int, std::unique_ptr<Light>>::iterator it = lights.begin();
 		it != lights.end(); ++it)
 	{
 		renderer->DrawLight(it->second);
-
 	}
 	for (size_t i = 0; i < debugLines.size(); i += 2)
 	{
-		renderer->DrawLine(debugLines[i], debugLines[i + 1]);
+		renderer->DrawLine(debugLines[i], debugLines[i + 1], BASIC_SHADER);
 	}
+}
+
+void Scene::DrawGizmos() {
+	for (std::map<int, std::shared_ptr<Entity>>::iterator it = entities.begin();
+		it != entities.end(); ++it)
+	{
+		auto collider = it->second->GetComponent<Collider>();
+		if (collider != nullptr)
+			renderer->DrawModel(collider->GetGizmo());
+	}
+
 }
 
 void Scene::PrintAllEntities() {
 	for (auto it = entities.begin(); it != entities.end(); ++it)
 	{
-		std::cout << "ID: " << it->first << " " << *it->second;
+		std::cout << "ID: " << it->first << " " << *it->second << "with " << it->second.use_count() << " uses";
 	}
 }

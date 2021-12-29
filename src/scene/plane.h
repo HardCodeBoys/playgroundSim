@@ -21,10 +21,10 @@ public:
 		vertices.push_back(position + glm::vec3(-d, 0, d));
 		vertices.push_back(position + glm::vec3(-d, 0, -d));
 
-		UpdateVertexData();
+		CreateVertexData();
 		GenerateBuffers();
 	}
-	void UpdateVertexData() override {
+	void CreateVertexData() override {
 		vertexData.clear();
 		for (size_t i = 0; i < vertices.size(); i++)
 		{

@@ -11,9 +11,9 @@ private:
     std::vector<glm::vec3> normals;
 public:
 	Sphere(const glm::vec3& _position, float size, GLuint _shaderID)
+        : Model(_position, _shaderID)
 	{
-        position = _position;
-        shaderID = _shaderID;
+        std::cout << "sphere ctor" << std::endl;
 
         const unsigned int sectorCount = 32;
         const unsigned int stackCount = 16;
@@ -83,11 +83,58 @@ public:
                 }
             }
         }
-		UpdateVertexData();
+        CreateVertexData();
 		GenerateBuffers();
 	}
 
-	void UpdateVertexData() override {
+    Sphere(const Sphere& other) {
+        std::cout << "sphere copy ctor" << std::endl;
+        position = other.position;
+
+        vertexBuffer = 0;
+        indexBuffer = 0;
+        
+        vertices = other.vertices;
+        vertexData = other.vertexData;
+
+        normals = other.normals;
+
+        indices = other.indices;
+
+        shaderID = other.shaderID;
+
+        CreateVertexData();
+        GenerateBuffers();
+    }
+    Sphere(Sphere&& other) noexcept {
+        Log::Info("sphere move ctor");
+        position = other.position;
+
+        vertexBuffer = other.vertexBuffer;
+        indexBuffer = other.indexBuffer;
+
+        vertices = other.vertices;
+        vertexData = other.vertexData;
+
+        normals = other.normals;
+
+        indices = other.indices;
+
+        shaderID = other.shaderID;
+
+        other.Destroy();
+
+        CreateVertexData();
+        GenerateBuffers();
+    }
+
+    void Destroy() override {
+        Model::Destroy();
+        normals.clear();
+
+    }
+
+	void CreateVertexData() override {
         vertexData.clear();
         const unsigned int sectorCount = 32;
         const unsigned int stackCount = 16;

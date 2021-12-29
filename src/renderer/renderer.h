@@ -30,11 +30,10 @@ public:
 	Renderer() : camera(glm::vec3(4, 0, 7)) {}
 	void AddShader(const Shader& shader);
 	void Init();
-	void foo();
 
 	void DrawModel(const std::shared_ptr<Model>& model, bool withNormals = false);
 
-	void DrawLine(const glm::vec3& a, const glm::vec3& b);
+	void DrawLine(const glm::vec3& a, const glm::vec3& b, GLuint shaderID);
 	// should not get a light, just its model
 	void DrawLight(const std::unique_ptr<Light>& light);
 };

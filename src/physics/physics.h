@@ -2,8 +2,11 @@
 
 #include <glm/glm.hpp>
 
-#include "cube_collider.h"
-#include "sphere_collider.h"
+#include "utils/meth.h"
+#include "utils/log.h"
+
+#include "physics/box_collider.h"
+#include "physics/sphere_collider.h"
 
 
 class Physics 
@@ -23,65 +26,48 @@ public:
 			return true;
 		return false;
 	}
-	// box collider
-	static bool Raycast(const glm::vec3& originPos, const glm::vec3& direction,
-		const glm::vec3& minBound, const glm::vec3& maxBound, bool box) {
-
-		std::cout << "ray direction" << glm::to_string(direction) << std::endl;
-		// the minimum and maximum X values in which the ray could intersect the box /
-		float tminx = (minBound.x - originPos.x) / direction.x;
-		float tmaxx = (maxBound.x - originPos.x) / direction.x;
-
-		if (tminx > tmaxx) std::swap(tminx, tmaxx);
-
-		float tminy = (minBound.y - originPos.y) / direction.y;
-		float tmaxy = (maxBound.y - originPos.y) / direction.y;
-
-		if (tminy > tmaxy) std::swap(tminy, tmaxy);
-
-		if (tminx > tmaxy || tminy > tmaxx)
-			return false;
-		if (tminy > tminx)
-			tminx = tminy;
-		if (tmaxy > tmaxx)
-			tmaxx = tmaxy;
-
-		float tminz = (minBound.z - originPos.z) / direction.z;
-		float tmaxz = (maxBound.z - originPos.z) / direction.z;
-
-		if (tminz > tmaxz) std::swap(tminz, tmaxz);
-
-		if (tminx > tmaxz || tminz > tmaxx)
-			return false;
-
-		return true;
-	}
-	// helper function TODO: move somewhere else
-	static bool solveQuadratic(float a, float b, float c, float& x1, float& x2) {
-		float discriminant = b * b - 4 * a * c;
-		if (discriminant < 0) return false;
-		else if (discriminant == 0) x1 = x2 = -0.5f * b / a;
-		else {
-			float q = (b > 0) ?
-				-0.5f * (b + sqrt(discriminant)) :
-				-0.5f * (b - sqrt(discriminant));
-			x1 = q / a;
-			x2 = c / q;
+	static bool Intersect(const std::shared_ptr<Collider>& a, const std::shared_ptr<Collider>& b) {
+		if (a->colliderType == ColliderType::BOX && b->colliderType == ColliderType::BOX) {
+			return
+				((abs(a->position.x - b->position.x) * 2 <= 2) &&
+					(abs(a->position.y - b->position.y) * 2 <= 2) &&
+					(abs(a->position.z - b->position.z) * 2 <= 2));
 		}
-		if (x1 > x2) std::swap(x1, x2);
+		else if (a->colliderType == ColliderType::BOX && b->colliderType == ColliderType::SPHERE) {
+			float dist_squared = b->colliderInfo.size * b->colliderInfo.size;
+			glm::vec3 C1 = a->GetBounds()[0];
+			glm::vec3 C2 = a->GetBounds()[1];
+			glm::vec3 S = b->position;
+			if (S.x < C1.x) dist_squared -= meth::Squared(S.x - C1.x);
+			else if (S.x > C2.x) dist_squared -= meth::Squared(S.x - C2.x);
+			if (S.y < C1.y) dist_squared -= meth::Squared(S.y - C1.y);
+			else if (S.y > C2.y) dist_squared -= meth::Squared(S.y - C2.y);
+			if (S.z < C1.z) dist_squared -= meth::Squared(S.z - C1.z);
+			else if (S.z > C2.z) dist_squared -= meth::Squared(S.z - C2.z);
+			return dist_squared > 0;
+		}
+		else if (a->colliderType == ColliderType::SPHERE && b->colliderType == ColliderType::BOX) {
+			Log::Warn("sphere and box");
+			float dist_squared = a->colliderInfo.size * a->colliderInfo.size;
+			glm::vec3 C1 = b->GetBounds()[0];
+			glm::vec3 C2 = b->GetBounds()[1];
+			glm::vec3 S = a->position;
+			if (S.x < C1.x) dist_squared -= meth::Squared(S.x - C1.x);
+			else if (S.x > C2.x) dist_squared -= meth::Squared(S.x - C2.x);
+			if (S.y < C1.y) dist_squared -= meth::Squared(S.y - C1.y);
+			else if (S.y > C2.y) dist_squared -= meth::Squared(S.y - C2.y);
+			if (S.z < C1.z) dist_squared -= meth::Squared(S.z - C1.z);
+			else if (S.z > C2.z) dist_squared -= meth::Squared(S.z - C2.z);
+			return dist_squared > 0;
+		}
+		else if (a->colliderType == ColliderType::SPHERE && b->colliderType == ColliderType::SPHERE) {
+			float radiusA = a->colliderInfo.size;
+			float radiusB = b->colliderInfo.size;
 
-		return true;
-	}
-
-	// sphere collider
-	static bool Raycast(const glm::vec3& rayOrigin, const glm::vec3 rayDirection, const glm::vec3& spherePosition, float radius) {
-		glm::vec3 L = spherePosition - rayOrigin;
-		float a = glm::dot(rayDirection, rayDirection);
-		float b = 2 * glm::dot(rayDirection, rayOrigin - spherePosition);
-		float c = glm::dot(rayOrigin - spherePosition, rayOrigin - spherePosition) - (radius * radius);
-		float x1 = 0, x2 = 0;
-		if (solveQuadratic(a, b, c, x1, x2)) return true;
-		// stupid, to indicate that the ray can return which of the points is closer to the origin
-		return false;
+			float dist = abs(meth::Distance(a->position, b->position));
+			return dist <= (radiusA + radiusB);
+		}
+		else
+			PL_ERROR("COLLIDERS NOT EXISTING TYPES");
 	}
 };

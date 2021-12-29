@@ -12,6 +12,7 @@ private:
     InputManager() {}
 public:
     inline static bool IS_RUNNING;
+    inline static bool DRAW_GIZMOS;
     inline static bool SHOW_GUI;
     // TODO: Inline for some reason ??? figure this out
     inline static std::shared_ptr<Scene> scene = std::make_shared<Scene>();
@@ -27,7 +28,6 @@ public:
         }
         if (button == GLFW_MOUSE_BUTTON_2 && action == GLFW_PRESS) {
             std::cout << "pressed mouse button 2" << std::endl;
-            scene->DeleteEntity(glm::vec3(0, 1, 1));
         }
     }
 

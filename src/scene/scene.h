@@ -13,6 +13,8 @@
 #include "gui/gui.h"
 #include "physics/physics.h"
 
+#include "physics/rigid_body.h"
+
 #include "scene/model.h"
 #include "scene/entity.h"
 #include "scene/cube.h"
@@ -26,7 +28,8 @@ class Scene {
 public:
 	std::unique_ptr<Renderer> renderer;
 
-	GLuint wireframeShader;
+	GLuint WIREFRAME_SHADER;
+	GLuint BASIC_SHADER;
 private:
 	std::map<int, std::shared_ptr<Entity>> entities;
 	std::map<int, std::unique_ptr<Light>> lights;
@@ -48,19 +51,22 @@ public:
 	void SelectEntity(double xPos, double yPos);
 
 	void CreateDebugLine(const glm::vec3& a, const glm::vec3& b);
-	void CreateTerrain(const glm::vec3& position, int size, const Shader& shader);
 
+	void CreateTerrain(const glm::vec3& position, int size, const Shader& shader);
 	void CreateCube(const glm::vec3& position, float size, const Shader& shader);
 	void CreateSphere(const glm::vec3& position, float size, const Shader& shader);
 	void CreatePlane(const glm::vec3& position, float size, const Shader& shader);
 	void CreateLight(const glm::vec3& position, const Shader& shader);
-	
 
 	void DeleteEntity(const glm::vec3& position);
 
 	void MoveEntities(const glm::vec3& direction);
 
+	void UpdateScene(float deltaTime);
+
 	void RenderScene();
+
+	void DrawGizmos();
 
 	void PrintAllEntities();
 };

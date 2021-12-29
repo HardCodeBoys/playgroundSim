@@ -40,6 +40,21 @@ namespace meth
 		return (b - a) * w + a;
 	}
 
+	static glm::vec3 CalculateNormal(const std::vector<glm::vec3>& triangle) {
+		glm::vec3 normal(0, 0, 0);
+		glm::vec3 u = triangle[1] - triangle[0];
+		glm::vec3 v = triangle[2] - triangle[0];
+
+		normal.x = u.y * v.z - u.z * v.y;
+		normal.y = u.z * v.x - u.x * v.z;
+		normal.z = u.x * v.y - u.y * v.x;
+
+		return normal;
+	}
+	static float Squared(float x) { return x * x; }
+	static float Distance(const glm::vec3& a, const glm::vec3& b) {
+		return sqrt(Squared(b.x - a.x) + Squared(b.y - a.y) + Squared(b.z - a.z));
+	}
 
 	class Random {
 	private:
@@ -53,14 +68,14 @@ namespace meth
 			max = generator.max();
 		}
 		static float FloatRange(float a, float b) {
-			return MapRange(min, max, a, b, generator());
+			return MapRange((float)min, (float)max, a, b, (float)generator());
 		}
 	};
 
 	class Perlin2D {
 	private:
 		std::vector<glm::vec2> gradients;
-		int size;
+		unsigned int size;
 
 		std::vector<int> permutationTable = {151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7,
 			225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23, 190, 6, 148, 247,
@@ -105,8 +120,8 @@ namespace meth
 			return t* t* t* (t * (t * 6 - 15) + 10);
 		}
 		float GetNoise(float x, float y) {
-			int X = ((int)floor(x)) & size * size - 1;
-			int Y = ((int)floor(y)) & size * size - 1;
+			int X = ((int)floor(x)) & (size * size - 1);
+			int Y = ((int)floor(y)) & (size * size - 1);
 			
 			/*glm::vec2 displacements[4] = {
 				{ x - X, y - Y },

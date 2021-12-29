@@ -14,21 +14,52 @@ class Terrain : public Model
 private:
 	// actual size (the number of squares) is one less, size = number of edges
 	int size;
-	int subdivision;
 public:
 	Terrain(const glm::vec3& _position, int _size, GLuint _shaderID)
-		: size(_size)
+		: Model(_position, _shaderID), size(_size)
 	{
-		subdivision = 2;
-		vertexBuffer = 0;
-		position = _position;
-		shaderID = _shaderID;
 		GenerateTerrain();
-		UpdateVertexData();
+		CreateVertexData();
 		GenerateBuffers();
-
 	}
-	virtual void UpdateVertexData() override {
+	Terrain(const Terrain& other) {
+		std::cout << "terrain copy ctor" << std::endl;
+		position = other.position;
+
+		vertexBuffer = 0;
+		indexBuffer = 0;
+
+		vertices = other.vertices;
+		vertexData = other.vertexData;
+
+		indices = other.indices;
+
+		shaderID = other.shaderID;
+
+		CreateVertexData();
+		GenerateBuffers();
+	}
+	Terrain(Terrain&& other) {
+		std::cout << "terrain move ctor" << std::endl;
+		position = other.position;
+
+		vertexBuffer = other.vertexBuffer;
+		indexBuffer = other.indexBuffer;
+
+		vertices = other.vertices;
+		vertexData = other.vertexData;
+
+		indices = other.indices;
+
+		shaderID = other.shaderID;
+
+		other.Destroy();
+
+		CreateVertexData();
+		GenerateBuffers();
+	}
+
+	virtual void CreateVertexData() override {
 		vertexData.clear();
 		for (size_t i = 0; i < vertices.size(); i++)
 		{
@@ -46,10 +77,10 @@ private:
 		{
 			for (size_t x = 0; x < size; x++)
 			{
-				float px = meth::MapRange(0, size, 0.00001f, 64 - std::numeric_limits<float>::epsilon(), x);
-				float py = meth::MapRange(0, size, 0.00001f, 64 - std::numeric_limits<float>::epsilon(), y);
-				//float height = perlin.OctavePerlin(px, py, 4);
-				float height = perlin.GetNoise(px, py);
+				float px = meth::MapRange(0, size, 0.00001f, 16 - std::numeric_limits<float>::epsilon(), x);
+				float py = meth::MapRange(0, size, 0.00001f, 16 - std::numeric_limits<float>::epsilon(), y);
+				float height = perlin.OctavePerlin(px, py, 4);
+				//float height = perlin.GetNoise(px, py);
 				//float height = glm::perlin(glm::vec2(px, py));
 				vertices.push_back(glm::vec3(position.x + x, position.y + height, position.z + y));
 			}

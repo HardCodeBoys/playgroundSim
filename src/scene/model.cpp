@@ -25,7 +25,6 @@ void Model::GenerateBuffers() {
 
 }
 void Model::UpdateBuffers() {
-	UpdateVertexData();
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::vec3) * vertexData.size(), (void*)vertexData.data());
 	// indices might stay the same most of the time, just the vertices are changing

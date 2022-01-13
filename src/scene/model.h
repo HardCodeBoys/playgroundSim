@@ -80,11 +80,10 @@ public:
 
 	void Move(const glm::vec3& direction) override {
 		for (size_t i = 0; i < vertices.size(); i++) {
-		vertices[i] += direction;
+			vertices[i] += direction;
 		}
 		position += direction;
 		MoveVertexData(direction);
-		//UpdateVertexData();
 		UpdateBuffers();
 	}
 	void MoveVertexData(const glm::vec3& direction) {

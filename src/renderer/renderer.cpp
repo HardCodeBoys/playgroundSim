@@ -103,7 +103,7 @@ void Renderer::DrawLine(const glm::vec3& a, const glm::vec3& b, GLuint shaderID)
 	glEnd();
 
 }
-// TODO: should not get a light, just its model
+// TODO: should not get a light, just its model, maybe shouldn't draw the light at all, just its Gizmo
 void Renderer::DrawLight(const std::unique_ptr<Light>& light) {
 	glm::mat4 MVP = camera.CalculateMVP(light->position);
 	GLuint shaderID = light->shaderID;

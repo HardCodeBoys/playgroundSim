@@ -14,13 +14,12 @@ public:
     inline static bool IS_RUNNING;
     inline static bool DRAW_GIZMOS;
     inline static bool SHOW_GUI;
-    // TODO: Inline for some reason ??? figure this out
+    // ???: Inline for some reason
     inline static std::shared_ptr<Scene> scene = std::make_shared<Scene>();
 
     static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
         if (button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS) {
             std::cout << "pressed mouse button 1" << std::endl;
-            //scene->CreateCube(glm::vec3(0, 1, 1), 1, 1);
             double xPos = 0, yPos = 0;
             glfwGetCursorPos(window, &xPos, &yPos);
             std::cout << "at position (x = " << xPos << ", y = " << yPos << ")" << std::endl;

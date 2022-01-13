@@ -9,7 +9,7 @@ private:
 	glm::vec3 position;
 	glm::vec3 velocity;
 
-	// 0 if static, 1 if not
+
 	bool isStatic;
 public:
 	RigidBody()

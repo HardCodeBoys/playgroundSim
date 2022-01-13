@@ -13,7 +13,7 @@ private:
 public:
 	// create a (random) vector of vertices for the mesh
 	Mesh() {}
-	virtual void CreateVertexData() override {
+	void CreateVertexData() override {
 		PL_NOT_IMPLEMENTED();
 	}
 

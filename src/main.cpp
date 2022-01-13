@@ -16,7 +16,8 @@
 *       RENDERING
 *       ??? create a model loader/saver
 *       definitely play some more with meshes
-*       materials/light doesnt work really well
+*       materials
+        light doesnt work really well
 *       the position of Light is hardcoded and currently only one working light
 *       add rotating camera like in an fps/3d game
 * 
@@ -105,8 +106,6 @@ int main()
 
     scene->WIREFRAME_SHADER = wireframeShader.ID;
     scene->BASIC_SHADER = basicShader.ID;
-
-    std::cout << "wireframeShader = " << scene->WIREFRAME_SHADER << ", basic = " << scene->BASIC_SHADER << std::endl;
 
     scene->CreateCube(glm::vec3(0, 8, 1), 1, basicShader);
     scene->CreateSphere(glm::vec3(0, 1, 1), 1, basicShader);

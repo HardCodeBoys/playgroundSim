@@ -59,7 +59,7 @@ public:
 		GenerateBuffers();
 	}
 
-	virtual void CreateVertexData() override {
+	void CreateVertexData() override {
 		vertexData.clear();
 		for (size_t i = 0; i < vertices.size(); i++)
 		{
